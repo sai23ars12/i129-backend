@@ -2,365 +2,513 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>I-129 Petition – Consultant Questionnaire</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>I-129 Petition Questionnaire</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f1b3d 0%,#1a3a6b 50%,#0d2a5e 100%);min-height:100vh;padding:30px 16px}
-  input,select{font-family:inherit}
-  .inp:focus{border-color:#2563eb!important;outline:none}
-  .step-btn:hover,.nav-btn:hover{opacity:.85}
-  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#3a5a9a;border-radius:3px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
-  @keyframes fade-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-  .fade-in{animation:fade-in .4s ease}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a1628;--navy2:#0f2040;--blue:#1a4db5;--blue2:#2563eb;
+  --accent:#f59e0b;--accent2:#fbbf24;
+  --line:#1e3a6e;--surface:#0d1f3c;--surface2:#162645;
+  --text:#e2eaf8;--muted:#6b8ab0;--label:#94afd4;
+  --input-bg:#0a1628;--input-border:#1e3a6e;--input-focus:#2563eb;
+  --green:#10b981;--red:#ef4444;
+}
+html{font-size:15px}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;line-height:1.5}
+input,select,textarea{font-family:inherit;font-size:inherit}
+
+.shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+@media(max-width:860px){.shell{grid-template-columns:1fr}}
+
+/* Sidebar */
+.sidebar{background:var(--navy2);border-right:1px solid var(--line);padding:28px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+@media(max-width:860px){.sidebar{display:none}}
+.logo{padding:0 22px 24px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.logo-badge{display:inline-flex;align-items:center;gap:7px;background:var(--blue);padding:4px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#fff;letter-spacing:.5px;margin-bottom:10px}
+.logo h1{font-size:13px;font-weight:700;color:var(--text)}
+.logo p{font-size:11px;color:var(--muted);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 22px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;font-size:12px;color:var(--muted);transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:var(--surface);color:var(--accent);border-left-color:var(--accent);font-weight:600}
+.nav-item.done{color:var(--label)}
+.nav-check{margin-left:auto;color:var(--green);font-size:11px}
+.nav-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);min-width:20px}
+.nav-item.active .nav-num{color:var(--accent)}
+.part-header{padding:10px 22px 4px;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.8px;font-family:'IBM Plex Mono',monospace}
+
+/* Main */
+.main{padding:36px 44px;max-width:840px}
+@media(max-width:860px){.main{padding:24px 18px}}
+
+.progress-bar{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:30px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue2),var(--accent));transition:width .4s ease}
+
+.step-header{margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.step-badge{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.step-title{font-size:21px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.step-sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+.section-title{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-family:'IBM Plex Mono',monospace;padding:7px 12px;background:rgba(245,158,11,.07);border-left:2px solid var(--accent);margin:24px 0 16px;border-radius:0 4px 4px 0}
+
+.field{margin-bottom:14px}
+.field-label{font-size:11px;font-weight:600;color:var(--label);margin-bottom:5px;display:flex;align-items:center;gap:4px;letter-spacing:.2px;line-height:1.4}
+.req{color:var(--accent);font-size:14px;line-height:1}
+.field-hint{font-size:10px;color:var(--muted);margin-bottom:5px;font-style:italic}
+.inp{width:100%;padding:9px 11px;background:var(--input-bg);border:1.5px solid var(--input-border);border-radius:5px;color:var(--text);font-size:13px;transition:border-color .15s,box-shadow .15s;outline:none}
+.inp:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.inp::placeholder{color:#253d60}
+select.inp{cursor:pointer}
+select.inp option{background:var(--navy2)}
+
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g21{grid-template-columns:2fr 1fr}
+.g12{grid-template-columns:1fr 2fr}
+.g211{grid-template-columns:2fr 1fr 1fr}
+.g121{grid-template-columns:1fr 2fr 1fr}
+@media(max-width:580px){.g2,.g3,.g21,.g12,.g211,.g121{grid-template-columns:1fr}}
+
+.radio-group{display:flex;border:1.5px solid var(--input-border);border-radius:5px;overflow:hidden}
+.radio-opt{flex:1;position:relative}
+.radio-opt input{position:absolute;opacity:0;width:0;height:0}
+.radio-opt label{display:block;padding:8px 10px;text-align:center;font-size:12.5px;color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500;white-space:nowrap}
+.radio-opt input:checked+label{background:var(--blue2);color:#fff}
+.radio-opt:not(:last-child){border-right:1px solid var(--input-border)}
+
+.yn{display:flex;gap:8px}
+.yn-btn{flex:1;padding:8px;border:1.5px solid var(--input-border);border-radius:5px;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;font-weight:500}
+.yn-btn:hover{border-color:var(--label)}
+.yn-y{border-color:var(--green)!important;background:rgba(16,185,129,.1)!important;color:var(--green)!important}
+.yn-n{border-color:var(--blue2)!important;background:rgba(37,99,235,.1)!important;color:#60a5fa!important}
+
+.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:22px;border-top:1px solid var(--line)}
+.btn{padding:10px 24px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;letter-spacing:.2px}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--label);color:var(--text)}
+.btn-primary{background:var(--blue2);color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.btn-primary:hover{background:#1d4ed8}
+.btn-submit{background:linear-gradient(135deg,#059669,var(--green));color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3);font-size:13.5px;padding:11px 28px}
+.btn-submit:hover{opacity:.9}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.review-table{border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:13px}
+.review-row{display:grid;grid-template-columns:190px 1fr}
+.review-row:nth-child(even) .review-key,.review-row:nth-child(even) .review-val{background:var(--surface)}
+.review-key{padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted);font-family:'IBM Plex Mono',monospace;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.review-val{padding:8px 14px;color:var(--text);border-bottom:1px solid var(--line)}
+.review-section-row{grid-column:1/-1;padding:7px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:var(--accent);background:rgba(245,158,11,.06);border-bottom:1px solid var(--line);font-family:'IBM Plex Mono',monospace}
+.empty{color:#253d60;font-style:italic}
+
+.success-screen{text-align:center;padding:60px 30px}
+.success-screen .ico{font-size:60px;margin-bottom:18px}
+.success-screen h2{font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px}
+.success-screen p{color:var(--muted);font-size:13px;max-width:400px;margin:0 auto 8px}
+.file-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);padding:6px 14px;border:1px solid rgba(245,158,11,.3);border-radius:4px;display:inline-block;margin:12px 0 24px}
+
+.err-box{margin-top:12px;padding:11px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:5px;color:#fca5a5;font-size:12.5px}
+.info-box{padding:12px 14px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:5px;color:var(--muted);font-size:12px;margin-bottom:16px}
+.warn-box{padding:12px 14px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:5px;color:#d4a017;font-size:12px;margin-top:20px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:7px}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useCallback} = React;
+<div class="shell">
 
-const STEPS=[
-  {id:"petitioner",   title:"Petitioner Info",    icon:"🏢"},
-  {id:"beneficiary",  title:"Beneficiary Info",   icon:"👤"},
-  {id:"employment",   title:"Employment Details", icon:"💼"},
-  {id:"classification",title:"Visa Classification",icon:"📋"},
-  {id:"review",       title:"Review & Submit",    icon:"✅"},
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-badge">🇺🇸 USCIS</div>
+    <h1>Form I-129</h1>
+    <p>Petition for Nonimmigrant Worker</p>
+  </div>
+  <div id="nav"></div>
+</aside>
+
+<main class="main">
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+  <div id="content"></div>
+</main>
+
+</div>
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const STEPS = [
+  {part:'Part 1', title:'Petitioner Information',   sub:'Who is filing this petition?'},
+  {part:'Part 2', title:'Petition Information',      sub:'Classification and requested action'},
+  {part:'Part 3', title:'Beneficiary — Name & Other Names', sub:'Items 1–4: beneficiary identity'},
+  {part:'Part 3', title:'Beneficiary — Personal Info', sub:'Items 5–7: DOB, sex, country, address'},
+  {part:'Part 3', title:'Beneficiary — U.S. Entry Info', sub:'Item 6: passport, status, I-94, SEVIS'},
+  {part:'Part 4', title:'Processing Information',   sub:'Consulate and beneficiary foreign address'},
+  {part:'Part 5', title:'Employment Details',        sub:'Job, location, schedule and wages'},
+  {part:'Part 5', title:'Employer Information',      sub:'Business details and export control'},
+  {part:'Part 7', title:'Signatory Information',     sub:'Authorized signatory name and contact'},
+  {part:'',       title:'Review & Submit',           sub:'Verify everything before generating the PDF'},
 ];
-const CLASSIFICATIONS=[
-  "H-1B Specialty Occupation","H-1B1 Chile/Singapore","H-2A Agricultural Worker",
-  "H-2B Non-agricultural Worker","H-3 Trainee","L-1A Manager/Executive","L-1B Specialized Knowledge",
-  "O-1A Extraordinary Ability (Sciences/Business/Athletics)","O-1B Extraordinary Ability (Arts/TV/Film)",
-  "E-1 Treaty Trader","E-2 Treaty Investor","TN Canada","TN Mexico","R-1 Religious Worker","Q-1 Cultural Exchange",
-];
-const US_STATES=["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME",
-  "MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD",
-  "TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
-const init={
-  petitionerType:"company",companyName:"",petFirstName:"",petLastName:"",petMiddleName:"",
-  fein:"",petStreet:"",petApt:"",petCity:"",petState:"",petZip:"",petCountry:"United States",
-  petPhone:"",petMobile:"",petEmail:"",isNonprofit:"",
-  benFirstName:"",benLastName:"",benMiddleName:"",benOtherNames:"",benDob:"",benSex:"",
-  benCountryBirth:"",benProvinceBirth:"",benCountryCitizenship:"",benSSN:"",benANumber:"",
-  benPassportNumber:"",benPassportCountry:"",benPassportIssued:"",benPassportExpires:"",
-  benI94:"",benCurrentStatus:"",benStatusExpires:"",benLastArrival:"",benEAD:"",benSEVIS:"",
-  benStreet:"",benApt:"",benCity:"",benState:"",benZip:"",
-  jobTitle:"",lcaNumber:"",workStreet:"",workCity:"",workState:"",workZip:"",
-  isOffsite:"",isThirdParty:"",thirdPartyName:"",isFullTime:"yes",hoursPerWeek:"",
-  wages:"",wagesPer:"year",startDate:"",endDate:"",
-  businessType:"",yearEstablished:"",numEmployees:"",grossIncome:"",netIncome:"",hasItinerary:"no",
-  classification:"",basisForClassification:"new",totalWorkers:"1",priorReceiptNumber:"",
-  requestedAction:"notify",consultateCity:"",consultateCountry:"",
+
+const STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
+
+const STATUS_OPTS = ['F-1','F-2','H-1B','H-4','L-1A','L-1B','L-2','O-1A','O-1B','O-3','B-1','B-2','J-1','J-2','TN','OPT/EAD','CPT','Other'];
+
+let step = 0, errHtml = '';
+
+let F = {
+  // Part 1
+  petitionerType:'company',
+  petLastName:'',petFirstName:'',petMiddleName:'',
+  companyName:'',
+  petInCareOf:'',petStreet:'',petApt:'',petCity:'',petState:'',petZip:'',
+  petCountry:'United States',petProvince:'',petPostalCode:'',
+  petPhone:'',petMobile:'',petEmail:'',
+  fein:'',petIRS:'',petSSN:'',isNonprofit:'',
+  // Part 2
+  classification:'',basisForClassification:'new',
+  priorReceiptNumber:'',totalWorkers:'1',requestedAction:'notify',
+  // Part 3a – name
+  benLastName:'',benFirstName:'',benMiddleName:'',
+  benOtherLast1:'',benOtherFirst1:'',benOtherMiddle1:'',
+  benOtherLast2:'',benOtherFirst2:'',benOtherMiddle2:'',
+  benOtherLast3:'',benOtherFirst3:'',benOtherMiddle3:'',
+  // Part 3b – personal
+  benDob:'',benSex:'',
+  benCountryBirth:'',benProvinceBirth:'',benCountryCitizenship:'',
+  benANumber:'',benSSN:'',
+  benStreet:'',benApt:'',benCity:'',benState:'',benZip:'',
+  // Part 3c – entry
+  benPassportNumber:'',benPassportCountry:'',
+  benPassportIssued:'',benPassportExpires:'',
+  benCurrentStatus:'',benStatusExpires:'',
+  benI94:'',benLastArrival:'',
+  benSEVIS:'',benEAD:'',
+  // Part 4
+  officeType:'consulate',
+  consultateCity:'',consultateCountry:'',
+  benForeignStreet:'',benForeignApt:'',benForeignCity:'',
+  benForeignProvince:'',benForeignPostal:'',benForeignCountry:'',
+  // Part 5a – employment
+  jobTitle:'',lcaNumber:'',
+  workStreet:'',workApt:'',workCity:'',workState:'',workZip:'',
+  isThirdParty:'no',thirdPartyName:'',
+  hasItinerary:'no',isOffsite:'no',isCNMI:'no',
+  isFullTime:'yes',hoursPerWeek:'',
+  wages:'',wagesPer:'year',otherComp:'',
+  startDate:'',endDate:'',
+  // Part 5b – employer
+  businessType:'',yearEstablished:'',numEmployees:'',
+  grossIncome:'',netIncome:'',
+  has25orFewer:'no',exportControl:'no_license',
+  // Part 7
+  sigLastName:'',sigFirstName:'',sigTitle:'',sigPhone:'',sigEmail:'',
 };
 
-// ── Design system ──────────────────────────────────────────────
-const IS={width:"100%",padding:"9px 12px",border:"1.5px solid #d5dce8",borderRadius:7,fontSize:14,color:"#1a2744",background:"#f9fbff"};
-function Inp({v,on,placeholder,type="text"}){return <input className="inp" type={type} value={v} onChange={e=>on(e.target.value)} placeholder={placeholder} style={IS}/>}
-function Sel({v,on,opts,placeholder}){return(
-  <select value={v} onChange={e=>on(e.target.value)} className="inp" style={{...IS,cursor:"pointer"}}>
-    <option value="">{placeholder||"Select…"}</option>
-    {opts.map(o=>typeof o==="string"?<option key={o} value={o}>{o}</option>:<option key={o.value} value={o.value}>{o.label}</option>)}
-  </select>
-)}
-function Radio({v,on,opts}){return(
-  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-    {opts.map(o=>(
-      <label key={o.value} style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:14,color:"#1a2744"}}>
-        <input type="radio" value={o.value} checked={v===o.value} onChange={()=>on(o.value)} style={{accentColor:"#2563eb"}}/>
-        {o.label}
-      </label>
-    ))}
-  </div>
-)}
-function F({label,required,hint,children}){return(
-  <div style={{marginBottom:16}}>
-    <label style={{display:"block",fontWeight:600,fontSize:13,color:"#1a2744",marginBottom:4,letterSpacing:.3}}>
-      {label}{required&&<span style={{color:"#c0392b",marginLeft:3}}>*</span>}
-    </label>
-    {hint&&<div style={{fontSize:11,color:"#7f8c8d",marginBottom:4}}>{hint}</div>}
-    {children}
-  </div>
-)}
-function Row({children,cols="1fr 1fr"}){return <div style={{display:"grid",gridTemplateColumns:cols,gap:14}}>{children}</div>}
-function Sec({title}){return <div style={{fontSize:12,fontWeight:700,color:"#2563eb",textTransform:"uppercase",letterSpacing:1.2,marginBottom:12,marginTop:16,borderBottom:"2px solid #e8f0fe",paddingBottom:5}}>{title}</div>}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function u(k,v){F[k]=v;}  // text inputs: update data only, no re-render
+function ub(k,v){F[k]=v;renderStep();}  // buttons/selects: re-render needed
+function esc(v){return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
-// ── Form steps ─────────────────────────────────────────────────
-function PetitionerStep({f,u}){return(
-  <div>
-    <Sec title="Petitioner Type"/>
-    <F label="Filing as"><Radio v={f.petitionerType} on={v=>u("petitionerType",v)} opts={[{value:"company",label:"Company / Organization"},{value:"individual",label:"Individual"}]}/></F>
-    {f.petitionerType==="company"
-      ?<F label="Company or Organization Name" required><Inp v={f.companyName} on={v=>u("companyName",v)} placeholder="Acme Corporation"/></F>
-      :<Row cols="1fr 1fr 1fr"><F label="Last Name" required><Inp v={f.petLastName} on={v=>u("petLastName",v)}/></F><F label="First Name" required><Inp v={f.petFirstName} on={v=>u("petFirstName",v)}/></F><F label="Middle Name"><Inp v={f.petMiddleName} on={v=>u("petMiddleName",v)}/></F></Row>}
-    <F label="FEIN" hint="9-digit Employer ID from IRS"><Inp v={f.fein} on={v=>u("fein",v)} placeholder="XX-XXXXXXX"/></F>
-    <Sec title="Mailing Address"/>
-    <Row cols="2fr 1fr"><F label="Street Number and Name" required><Inp v={f.petStreet} on={v=>u("petStreet",v)} placeholder="123 Main Street"/></F><F label="Apt/Suite"><Inp v={f.petApt} on={v=>u("petApt",v)}/></F></Row>
-    <Row cols="1fr 1fr 1fr"><F label="City" required><Inp v={f.petCity} on={v=>u("petCity",v)}/></F><F label="State"><Sel v={f.petState} on={v=>u("petState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.petZip} on={v=>u("petZip",v)}/></F></Row>
-    <F label="Country"><Inp v={f.petCountry} on={v=>u("petCountry",v)}/></F>
-    <Sec title="Contact Information"/>
-    <Row cols="1fr 1fr 1fr"><F label="Daytime Phone"><Inp v={f.petPhone} on={v=>u("petPhone",v)} placeholder="(555) 000-0000"/></F><F label="Mobile Phone"><Inp v={f.petMobile} on={v=>u("petMobile",v)} placeholder="(555) 000-0000"/></F><F label="Email"><Inp v={f.petEmail} on={v=>u("petEmail",v)} placeholder="hr@company.com"/></F></Row>
-    <F label="Nonprofit / governmental research org?"><Radio v={f.isNonprofit} on={v=>u("isNonprofit",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>
-  </div>
-)}
-function BeneficiaryStep({f,u}){return(
-  <div>
-    <Sec title="Beneficiary Identity"/>
-    <Row cols="1fr 1fr 1fr"><F label="Last Name" required><Inp v={f.benLastName} on={v=>u("benLastName",v)}/></F><F label="First Name" required><Inp v={f.benFirstName} on={v=>u("benFirstName",v)}/></F><F label="Middle Name"><Inp v={f.benMiddleName} on={v=>u("benMiddleName",v)}/></F></Row>
-    <F label="Other Names Used" hint="Aliases, maiden name"><Inp v={f.benOtherNames} on={v=>u("benOtherNames",v)} placeholder="N/A if none"/></F>
-    <Row><F label="Date of Birth" required><Inp type="date" v={f.benDob} on={v=>u("benDob",v)}/></F><F label="Sex" required><Radio v={f.benSex} on={v=>u("benSex",v)} opts={[{value:"male",label:"Male"},{value:"female",label:"Female"}]}/></F></Row>
-    <Row><F label="Country of Birth" required><Inp v={f.benCountryBirth} on={v=>u("benCountryBirth",v)}/></F><F label="Province of Birth"><Inp v={f.benProvinceBirth} on={v=>u("benProvinceBirth",v)}/></F></Row>
-    <F label="Country of Citizenship / Nationality" required><Inp v={f.benCountryCitizenship} on={v=>u("benCountryCitizenship",v)}/></F>
-    <Row><F label="U.S. SSN (if any)"><Inp v={f.benSSN} on={v=>u("benSSN",v)} placeholder="XXX-XX-XXXX"/></F><F label="Alien Registration Number (A-Number)"><Inp v={f.benANumber} on={v=>u("benANumber",v)} placeholder="AXXXXXXXXX"/></F></Row>
-    <Sec title="Passport / Travel Document"/>
-    <Row cols="1fr 1fr 1fr"><F label="Passport Number"><Inp v={f.benPassportNumber} on={v=>u("benPassportNumber",v)}/></F><F label="Country of Issuance"><Inp v={f.benPassportCountry} on={v=>u("benPassportCountry",v)}/></F><F label="Issue Date"><Inp type="date" v={f.benPassportIssued} on={v=>u("benPassportIssued",v)}/></F></Row>
-    <F label="Passport Expiration Date"><Inp type="date" v={f.benPassportExpires} on={v=>u("benPassportExpires",v)}/></F>
-    <Sec title="U.S. Entry Info (if in the U.S.)"/>
-    <Row><F label="I-94 Number"><Inp v={f.benI94} on={v=>u("benI94",v)}/></F><F label="Date of Last Arrival"><Inp type="date" v={f.benLastArrival} on={v=>u("benLastArrival",v)}/></F></Row>
-    <Row><F label="Current Nonimmigrant Status"><Inp v={f.benCurrentStatus} on={v=>u("benCurrentStatus",v)} placeholder="e.g. F-1, H-4"/></F><F label="Status Expires"><Inp type="date" v={f.benStatusExpires} on={v=>u("benStatusExpires",v)}/></F></Row>
-    <Row><F label="EAD Number (if any)"><Inp v={f.benEAD} on={v=>u("benEAD",v)}/></F><F label="SEVIS Number (if any)"><Inp v={f.benSEVIS} on={v=>u("benSEVIS",v)}/></F></Row>
-    <Sec title="Current U.S. Address"/>
-    <Row cols="2fr 1fr"><F label="Street"><Inp v={f.benStreet} on={v=>u("benStreet",v)}/></F><F label="Apt/Suite"><Inp v={f.benApt} on={v=>u("benApt",v)}/></F></Row>
-    <Row cols="1fr 1fr 1fr"><F label="City"><Inp v={f.benCity} on={v=>u("benCity",v)}/></F><F label="State"><Sel v={f.benState} on={v=>u("benState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.benZip} on={v=>u("benZip",v)}/></F></Row>
-  </div>
-)}
-function EmploymentStep({f,u}){return(
-  <div>
-    <Sec title="Job Details"/>
-    <Row><F label="Job Title" required><Inp v={f.jobTitle} on={v=>u("jobTitle",v)} placeholder="Software Engineer"/></F><F label="LCA / ETA Case Number" hint="From Dept. of Labor"><Inp v={f.lcaNumber} on={v=>u("lcaNumber",v)}/></F></Row>
-    <Sec title="Work Location"/>
-    <F label="Street Number and Name"><Inp v={f.workStreet} on={v=>u("workStreet",v)} placeholder="Same as petitioner if blank"/></F>
-    <Row cols="1fr 1fr 1fr"><F label="City"><Inp v={f.workCity} on={v=>u("workCity",v)}/></F><F label="State"><Sel v={f.workState} on={v=>u("workState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.workZip} on={v=>u("workZip",v)}/></F></Row>
-    <Row><F label="Will beneficiary work offsite?"><Radio v={f.isOffsite} on={v=>u("isOffsite",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F><F label="Third-party location?"><Radio v={f.isThirdParty} on={v=>u("isThirdParty",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F></Row>
-    {f.isThirdParty==="yes"&&<F label="Third-Party Organization Name"><Inp v={f.thirdPartyName} on={v=>u("thirdPartyName",v)}/></F>}
-    <Sec title="Schedule & Compensation"/>
-    <Row><F label="Full-time position?"><Radio v={f.isFullTime} on={v=>u("isFullTime",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>{f.isFullTime==="no"&&<F label="Hours Per Week"><Inp v={f.hoursPerWeek} on={v=>u("hoursPerWeek",v)} placeholder="20"/></F>}</Row>
-    <Row cols="2fr 1fr"><F label="Wages ($)" required><Inp v={f.wages} on={v=>u("wages",v)} placeholder="100000"/></F><F label="Per"><Sel v={f.wagesPer} on={v=>u("wagesPer",v)} opts={["hour","week","month","year"]}/></F></Row>
-    <Row><F label="Start Date" required><Inp type="date" v={f.startDate} on={v=>u("startDate",v)}/></F><F label="End Date" required><Inp type="date" v={f.endDate} on={v=>u("endDate",v)}/></F></Row>
-    <Sec title="Employer Business Info"/>
-    <Row cols="1fr 1fr 1fr"><F label="Type of Business"><Inp v={f.businessType} on={v=>u("businessType",v)} placeholder="Technology Services"/></F><F label="Year Established"><Inp v={f.yearEstablished} on={v=>u("yearEstablished",v)}/></F><F label="U.S. Employees"><Inp v={f.numEmployees} on={v=>u("numEmployees",v)}/></F></Row>
-    <Row><F label="Gross Annual Income ($)"><Inp v={f.grossIncome} on={v=>u("grossIncome",v)}/></F><F label="Net Annual Income ($)"><Inp v={f.netIncome} on={v=>u("netIncome",v)}/></F></Row>
-    <F label="Itinerary included?"><Radio v={f.hasItinerary} on={v=>u("hasItinerary",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>
-  </div>
-)}
-function ClassificationStep({f,u}){return(
-  <div>
-    <Sec title="Visa Classification"/>
-    <F label="Requested Nonimmigrant Classification" required><Sel v={f.classification} on={v=>u("classification",v)} opts={CLASSIFICATIONS} placeholder="Select classification…"/></F>
-    <F label="Basis for Classification" required>
-      <Sel v={f.basisForClassification} on={v=>u("basisForClassification",v)} opts={[
-        {value:"new",label:"New Employment"},{value:"concurrent",label:"New Concurrent Employment"},
-        {value:"change_employer",label:"Change of Employer"},{value:"amended",label:"Amended Petition"},
-        {value:"change_prev",label:"Change in Previously Approved Employment"},{value:"continuation",label:"Continuation with Same Employer"},
-      ]}/>
-    </F>
-    <Row><F label="Total Number of Workers"><Inp v={f.totalWorkers} on={v=>u("totalWorkers",v)} placeholder="1"/></F><F label="Prior Receipt Number" hint="Write 'None' if not applicable"><Inp v={f.priorReceiptNumber} on={v=>u("priorReceiptNumber",v)} placeholder="None"/></F></Row>
-    <F label="Requested Action" required>
-      <Sel v={f.requestedAction} on={v=>u("requestedAction",v)} opts={[
-        {value:"notify",label:"Notify consulate so beneficiary can obtain visa"},
-        {value:"change_extend",label:"Change status and extend stay (beneficiary in U.S.)"},
-        {value:"extend",label:"Extend the stay"},{value:"amend",label:"Amend the stay"},
-      ]}/>
-    </F>
-    <Sec title="Processing Office"/>
-    <Row><F label="Consulate / Port of Entry City"><Inp v={f.consultateCity} on={v=>u("consultateCity",v)} placeholder="Mumbai"/></F><F label="Country"><Inp v={f.consultateCountry} on={v=>u("consultateCountry",v)} placeholder="India"/></F></Row>
-  </div>
-)}
-function ReviewStep({f}){
-  const petName=f.petitionerType==="company"?f.companyName:`${f.petFirstName} ${f.petLastName}`;
+function inp(key,ph='',type='text'){
+  // Use data-key so we can set value once on mount; oninput silently updates F without re-render
+  return `<input class="inp" type="${type}" data-key="${key}" placeholder="${ph}" oninput="u('${key}',this.value)" autocomplete="off">`;
+}
+function sel(key,opts,ph='Select…'){
+  let o=`<option value="">${ph}</option>`;
+  opts.forEach(x=>{const v=typeof x==='string'?x:x.v,l=typeof x==='string'?x:x.l;o+=`<option value="${esc(v)}"${F[key]===v?' selected':''}>${l}</option>`;});
+  return `<select class="inp" onchange="ub('${key}',this.value)">${o}</select>`;
+}
+function statesel(key){return sel(key,STATES,'State');}
+function ynbtn(key){
+  const y=F[key]==='yes',n=F[key]==='no';
+  return `<div class="yn"><button class="yn-btn ${y?'yn-y':''}" onclick="ub('${key}','yes')">✓ Yes</button><button class="yn-btn ${n?'yn-n':''}" onclick="ub('${key}','no')">✗ No</button></div>`;
+}
+function radio(key,opts){
+  return `<div class="radio-group">${opts.map(o=>`<div class="radio-opt"><input type="radio" name="${key}_r" id="${key}_${o.v}" ${F[key]===o.v?'checked':''} onchange="ub('${key}','${o.v}')"><label for="${key}_${o.v}">${o.l}</label></div>`).join('')}</div>`;
+}
+function fld(label,content,hint='',req=false){
+  return `<div class="field"><div class="field-label">${label}${req?'<span class="req">*</span>':''}</div>${hint?`<div class="field-hint">${hint}</div>`:''}${content}</div>`;
+}
+function sec(t){return `<div class="section-title">${t}</div>`;}
+function g(cols,...fs){return `<div class="grid ${cols}">${fs.join('')}</div>`;}
+
+// ─── Step renderers ───────────────────────────────────────────────────────────
+
+function renderS0(){ // Part 1
+  const co=F.petitionerType==='company';
+  return `
+  ${sec('Items 1–2 · Legal Name of Petitioner')}
+  ${fld('Petitioner type',radio('petitionerType',[{v:'company',l:'Company / Organization'},{v:'individual',l:'Individual'}]))}
+  ${co
+    ? fld('Item 2 · Company or Organization Name',inp('companyName','Acme Corporation'),'',true)
+    : g('g3',fld('Family Name (Last)',inp('petLastName'),'',true),fld('Given Name (First)',inp('petFirstName'),'',true),fld('Middle Name',inp('petMiddleName')))
+  }
+  ${sec('Item 3 · Mailing Address')}
+  ${fld('In Care of Name',inp('petInCareOf'),'If applicable')}
+  ${g('g21',fld('Street Number and Name',inp('petStreet','123 Main Street'),'',true),fld('Apt / Suite / Floor #',inp('petApt')))}
+  ${g('g211',fld('City or Town',inp('petCity'),'',true),fld('State',statesel('petState')),fld('ZIP Code',inp('petZip')))}
+  ${g('g3',fld('Country',inp('petCountry','United States')),fld('Province',inp('petProvince'),'If outside U.S.'),fld('Postal Code',inp('petPostalCode'),'If outside U.S.'))}
+  ${sec('Item 4 · Contact Information')}
+  ${g('g3',fld('Daytime Telephone Number',inp('petPhone','2145550000'),'',true),fld('Mobile Telephone Number',inp('petMobile')),fld('Email Address',inp('petEmail','hr@company.com','email'),'',true))}
+  ${sec('Items 5–8 · Other Information')}
+  ${g('g3',fld('Item 5 · Federal Employer Identification Number (FEIN)',inp('fein','XX-XXXXXXX'),'From IRS',true),fld('Item 7 · IRS Individual Tax Number',inp('petIRS'),'Individual filers only'),fld('Item 8 · U.S. Social Security Number',inp('petSSN'),'Individual filers only'))}
+  ${fld('Item 6 · Is petitioner a nonprofit/tax-exempt or governmental research organization?',ynbtn('isNonprofit'))}`;
+}
+
+function renderS1(){ // Part 2
+  const cls=['H-1B Specialty Occupation','H-1B1 Chile/Singapore','H-2A Agricultural Worker','H-2B Non-agricultural Worker','H-3 Trainee','L-1A Manager/Executive','L-1B Specialized Knowledge','O-1A Extraordinary Ability (Sciences/Business/Athletics)','O-1B Extraordinary Ability (Arts/TV/Film)','E-1 Treaty Trader','E-2 Treaty Investor','TN Canada','TN Mexico','R-1 Religious Worker','Q-1 Cultural Exchange'];
+  const basis=[{v:'new',l:'A. New Employment'},{v:'continuation',l:'B. Continuation with Same Employer (no change)'},{v:'change_prev',l:'C. Change in Previously Approved Employment'},{v:'concurrent',l:'D. New Concurrent Employment'},{v:'change_employer',l:'E. Change of Employer'},{v:'amended',l:'F. Amended Petition'}];
+  const actions=[{v:'notify',l:'A. Notify consulate so beneficiary can obtain a visa'},{v:'change_extend',l:'B. Change status & extend stay (beneficiary in U.S.)'},{v:'extend',l:'C. Extend the stay'},{v:'amend',l:'D. Amend the stay'}];
+  return `
+  ${sec('Item 1 · Requested Nonimmigrant Classification')}
+  ${fld('Classification symbol',sel('classification',cls,'Select classification…'),'e.g. H-1B, L-1A, O-1A',true)}
+  ${sec('Item 2 · Basis for Classification')}
+  ${fld('Select the one that applies',sel('basisForClassification',basis,'Select basis…'),'',true)}
+  ${sec('Item 3 · Prior Receipt Number')}
+  ${fld('Most recent USCIS receipt number for this beneficiary',inp('priorReceiptNumber','None'),'Write "None" if no prior petition exists')}
+  ${sec('Item 4 · Requested Action')}
+  ${fld('What are you requesting USCIS to do?',sel('requestedAction',actions,'Select action…'),'',true)}
+  ${sec('Item 5 · Total Workers')}
+  ${fld('Total number of workers included in this petition',inp('totalWorkers','1'))}`;
+}
+
+function renderS2(){ // Part 3 — Name + other names (Items 1–4)
+  return `
+  <div class="info-box">ℹ️ <strong>Item 1:</strong> Named beneficiary (not unnamed). <strong>Item 3:</strong> Enter the beneficiary's legal name below as it appears on their passport.</div>
+  ${sec('Item 3 · Legal Name of Beneficiary')}
+  ${g('g3',fld('Family Name (Last)',inp('benLastName'),'',true),fld('Given Name (First)',inp('benFirstName'),'',true),fld('Middle Name',inp('benMiddleName')))}
+  ${sec('Item 4 · All Other Names Used')}
+  <div class="info-box" style="margin-bottom:12px">Include nicknames, aliases, maiden name, names from all previous marriages. Leave blank if none.</div>
+  ${g('g3',fld('Last Name — Name 1',inp('benOtherLast1')),fld('First Name — Name 1',inp('benOtherFirst1')),fld('Middle Name — Name 1',inp('benOtherMiddle1')))}
+  ${g('g3',fld('Last Name — Name 2',inp('benOtherLast2')),fld('First Name — Name 2',inp('benOtherFirst2')),fld('Middle Name — Name 2',inp('benOtherMiddle2')))}
+  ${g('g3',fld('Last Name — Name 3',inp('benOtherLast3')),fld('First Name — Name 3',inp('benOtherFirst3')),fld('Middle Name — Name 3',inp('benOtherMiddle3')))}`;
+}
+
+function renderS3(){ // Part 3 — Personal info + US address (Items 5, 7)
+  return `
+  ${sec('Item 5 · Other Personal Information')}
+  ${g('g2',fld('Date of Birth',inp('benDob','','date'),'MM/DD/YYYY',true),fld('Sex',radio('benSex',[{v:'male',l:'Male'},{v:'female',l:'Female'}])))}
+  ${g('g2',fld('Country of Birth',inp('benCountryBirth'),'',true),fld('Province of Birth',inp('benProvinceBirth')))}
+  ${fld('Country of Citizenship / Nationality',inp('benCountryCitizenship'),'',true)}
+  ${g('g2',fld('Alien Registration Number (A-Number)',inp('benANumber'),'Format: AXXXXXXXXX — if any'),fld('U.S. Social Security Number',inp('benSSN'),'If any'))}
+  ${sec('Item 7 · Current U.S. Residential Address (if beneficiary is in the U.S.)')}
+  ${g('g21',fld('Street Number and Name',inp('benStreet')),fld('Apt / Suite / Floor #',inp('benApt')))}
+  ${g('g211',fld('City or Town',inp('benCity')),fld('State',statesel('benState')),fld('ZIP Code',inp('benZip')))}`;
+}
+
+function renderS4(){ // Part 3 — U.S. Entry (Item 6)
+  return `
+  <div class="info-box">ℹ️ <strong>Item 6:</strong> Complete this section only if the beneficiary is currently in the United States.</div>
+  ${sec('Item 6 · Passport / Travel Document')}
+  ${g('g2',fld('Passport or Travel Document Number',inp('benPassportNumber')),fld('Country of Issuance',inp('benPassportCountry')))}
+  ${g('g2',fld('Date Passport Issued',inp('benPassportIssued','','date'),'MM/DD/YYYY'),fld('Date Passport Expires',inp('benPassportExpires','','date'),'MM/DD/YYYY'))}
+  ${sec('Item 6 · Current Nonimmigrant Status')}
+  ${g('g2',fld('Current Nonimmigrant Status',sel('benCurrentStatus',STATUS_OPTS,'Select status…')),fld('Date Status Expires',inp('benStatusExpires','','date'),'MM/DD/YYYY — or type D/S'))}
+  ${sec('Item 6 · Arrival Information')}
+  ${g('g2',fld('I-94 Arrival-Departure Record Number',inp('benI94')),fld('Date of Last Arrival',inp('benLastArrival','','date'),'MM/DD/YYYY'))}
+  ${sec('Item 6 · SEVIS / EAD Numbers')}
+  ${g('g2',fld('SEVIS Number',inp('benSEVIS'),'N followed by 10 digits — if any'),fld('EAD Number (Employment Authorization Document)',inp('benEAD'),'If any'))}`;
+}
+
+function renderS5(){ // Part 4
+  return `
+  ${sec('Item 1A · Type of Office')}
+  ${fld('Select the type of office to be notified',radio('officeType',[{v:'consulate',l:'Consulate'},{v:'preflight',l:'Pre-flight Inspection'},{v:'port',l:'Port of Entry'}]))}
+  ${sec('Item 1B–C · Consulate or Inspection Facility')}
+  ${g('g2',fld('City',inp('consultateCity'),'e.g. Mumbai, London',true),fld('Country or U.S. State',inp('consultateCountry'),'e.g. India, United Kingdom',true))}
+  ${sec('Item 1D · Beneficiary\'s Foreign Address')}
+  <div class="info-box">Beneficiary's home country address, if outside the U.S. Leave blank if beneficiary is in the U.S.</div>
+  ${g('g21',fld('Street Number and Name',inp('benForeignStreet')),fld('Apt / Suite / Floor #',inp('benForeignApt')))}
+  ${g('g211',fld('City or Town',inp('benForeignCity')),fld('Province / State',inp('benForeignProvince')),fld('Postal Code',inp('benForeignPostal')))}
+  ${fld('Country',inp('benForeignCountry'))}`;
+}
+
+function renderS6(){ // Part 5a — Employment
+  return `
+  ${sec('Item 1–2 · Position')}
+  ${g('g2',fld('Item 1 · Job Title',inp('jobTitle','Software Engineer'),'',true),fld('Item 2 · LCA or ETA Case Number',inp('lcaNumber','I-200-00000-000000'),'From Dept. of Labor'))}
+  ${sec('Item 3 · Address Where Beneficiary Will Work')}
+  <div class="info-box">Only complete if different from petitioner address in Part 1. Leave blank if the same.</div>
+  ${g('g21',fld('Street Number and Name',inp('workStreet')),fld('Apt / Suite / Floor #',inp('workApt')))}
+  ${g('g211',fld('City or Town',inp('workCity')),fld('State',statesel('workState')),fld('ZIP Code',inp('workZip')))}
+  ${fld('Item 3 · Is this a third-party location?',ynbtn('isThirdParty'))}
+  ${F.isThirdParty==='yes'?fld('Name of Third-Party Organization',inp('thirdPartyName'),'',true):''}
+  ${sec('Items 4–6 · Logistics')}
+  ${fld('Item 4 · Did you include an itinerary with this petition?',ynbtn('hasItinerary'))}
+  ${fld('Item 5 · Will beneficiary work off-site at another company\'s or organization\'s location?',ynbtn('isOffsite'))}
+  ${fld('Item 6 · Will beneficiary work exclusively in the Commonwealth of the Northern Mariana Islands (CNMI)?',ynbtn('isCNMI'))}
+  ${sec('Items 7–11 · Employment Terms')}
+  ${fld('Item 7 · Is this a full-time position?',ynbtn('isFullTime'))}
+  ${F.isFullTime==='no'?fld('Item 8 · Hours per week',inp('hoursPerWeek','20'),'Required if part-time',true):''}
+  ${g('g21',fld('Item 9 · Wages (dollar amount)',inp('wages','100000'),'',true),fld('Per',sel('wagesPer',[{v:'hour',l:'Hour'},{v:'week',l:'Week'},{v:'month',l:'Month'},{v:'year',l:'Year'}])))}
+  ${fld('Item 10 · Other Compensation',inp('otherComp'),'Describe any bonuses, housing, or other compensation — leave blank if none')}
+  ${g('g2',fld('Item 11 · Employment From Date',inp('startDate','','date'),'MM/DD/YYYY',true),fld('Employment To Date',inp('endDate','','date'),'MM/DD/YYYY',true))}`;
+}
+
+function renderS7(){ // Part 5b — Employer + export control
+  return `
+  ${sec('Items 12–17 · Employer Information')}
+  ${g('g3',fld('Item 12 · Type of Business',inp('businessType','Information Technology'),'',true),fld('Item 13 · Year Established',inp('yearEstablished','2005')),fld('Item 14 · Current Number of U.S. Employees',inp('numEmployees','500')))}
+  ${g('g2',fld('Item 16 · Gross Annual Income ($)',inp('grossIncome','50000000')),fld('Item 17 · Net Annual Income ($)',inp('netIncome','8000000')))}
+  ${fld('Item 15 · Does your company currently employ 25 or fewer full-time equivalent employees in the U.S. (including affiliates/subsidiaries)?',radio('has25orFewer',[{v:'yes',l:'Yes — 25 or fewer'},{v:'no',l:'No — more than 25'}]))}
+  ${sec('Part 6 · Export Control Certification')}
+  <div class="info-box">Required for H-1B, H-1B1, L-1, and O-1A petitions only. Review Export Administration Regulations (EAR) and ITAR before selecting.</div>
+  ${fld('With respect to technology or technical data to be released to the beneficiary, the petitioner certifies:',
+    radio('exportControl',[
+      {v:'no_license',l:'1. No license required from Dept. of Commerce or State'},
+      {v:'license_req',l:'2. License is required — petitioner will prevent access until license is obtained'}
+    ])
+  )}`;
+}
+
+function renderS8(){ // Part 7
+  return `
+  ${sec('Item 1 · Name and Title of Authorized Signatory')}
+  <div class="info-box">The person signing this petition on behalf of the petitioner (not the preparer).</div>
+  ${g('g3',fld('Family Name (Last)',inp('sigLastName'),'',true),fld('Given Name (First)',inp('sigFirstName'),'',true),fld('Title',inp('sigTitle','HR Manager, VP, etc.')))}
+  ${sec('Item 3 · Signatory Contact Information')}
+  ${g('g2',fld('Daytime Telephone Number',inp('sigPhone'),'',true),fld('Email Address',inp('sigEmail','','email'),'',true))}
+  <div class="warn-box">
+    <strong>📝 Handwritten Signature Required</strong><br>
+    The PDF will be pre-filled with all the information above. After downloading, the authorized signatory must <strong>physically sign and date</strong> Part 7 (Item 2) before the form can be filed with USCIS.
+  </div>`;
+}
+
+function renderS9(){ // Review
+  const pName = F.petitionerType==='company'?F.companyName:[F.petLastName,F.petFirstName].filter(Boolean).join(', ');
+  const bName = [F.benLastName,F.benFirstName,F.benMiddleName].filter(Boolean).join(', ');
   const rows=[
-    ["Petitioner",petName],["FEIN",f.fein],["Petitioner Address",`${f.petStreet}, ${f.petCity}, ${f.petState} ${f.petZip}`],
-    ["Petitioner Email",f.petEmail],["Beneficiary",`${f.benFirstName} ${f.benMiddleName} ${f.benLastName}`.trim()],
-    ["Date of Birth",f.benDob],["Citizenship",f.benCountryCitizenship],["Passport #",f.benPassportNumber],
-    ["Current Status",f.benCurrentStatus],["Classification",f.classification],["Basis",f.basisForClassification],
-    ["Job Title",f.jobTitle],["LCA Number",f.lcaNumber],["Start Date",f.startDate],["End Date",f.endDate],
-    ["Wages",f.wages?`$${f.wages} per ${f.wagesPer}`:""],["Employees",f.numEmployees],
-    ["Processing Office",`${f.consultateCity}, ${f.consultateCountry}`],
+    ['PART 1 — PETITIONER'],
+    ['Petitioner Type',F.petitionerType],['Name',pName],['FEIN',F.fein],
+    ['Address',[F.petStreet,F.petApt,F.petCity,[F.petState,F.petZip].filter(Boolean).join(' '),F.petCountry].filter(x=>x&&x.trim()).join(', ')],
+    ['Phone',F.petPhone],['Email',F.petEmail],['Nonprofit?',F.isNonprofit||'—'],
+    ['PART 2 — PETITION'],
+    ['Classification',F.classification],['Basis',F.basisForClassification],
+    ['Requested Action',F.requestedAction],['Prior Receipt #',F.priorReceiptNumber||'None'],['Total Workers',F.totalWorkers],
+    ['PART 3 — BENEFICIARY'],
+    ['Legal Name',bName],['Date of Birth',F.benDob],['Sex',F.benSex],
+    ['Country of Birth',F.benCountryBirth],['Province',F.benProvinceBirth],
+    ['Citizenship',F.benCountryCitizenship],['A-Number',F.benANumber||'—'],['SSN',F.benSSN||'—'],
+    ['U.S. Address',[F.benStreet,F.benApt,F.benCity,[F.benState,F.benZip].filter(Boolean).join(' ')].filter(x=>x&&x.trim()).join(', ')||'—'],
+    ['Passport #',F.benPassportNumber||'—'],['Passport Country',F.benPassportCountry||'—'],
+    ['Passport Issued',F.benPassportIssued||'—'],['Passport Expires',F.benPassportExpires||'—'],
+    ['Current Status',F.benCurrentStatus||'—'],['Status Expires',F.benStatusExpires||'—'],
+    ['I-94 Number',F.benI94||'—'],['Last Arrival',F.benLastArrival||'—'],
+    ['SEVIS',F.benSEVIS||'—'],['EAD',F.benEAD||'—'],
+    ['PART 4 — PROCESSING'],
+    ['Office Type',F.officeType],['Consulate City',F.consultateCity],['Country',F.consultateCountry],
+    ['Foreign Address',[F.benForeignStreet,F.benForeignCity,F.benForeignCountry].filter(Boolean).join(', ')||'—'],
+    ['PART 5 — EMPLOYMENT'],
+    ['Job Title',F.jobTitle],['LCA Number',F.lcaNumber],
+    ['Work Location',[F.workStreet,F.workCity,[F.workState,F.workZip].filter(Boolean).join(' ')].filter(x=>x&&x.trim()).join(', ')||'Same as petitioner'],
+    ['Third-party?',F.isThirdParty],['Itinerary?',F.hasItinerary],['Offsite?',F.isOffsite],
+    ['Full-time?',F.isFullTime],['Hrs/week',F.isFullTime==='no'?F.hoursPerWeek:'—'],
+    ['Wages',F.wages?'$'+F.wages+' / '+F.wagesPer:'—'],
+    ['Start Date',F.startDate],['End Date',F.endDate],
+    ['Business Type',F.businessType],['Year Est.',F.yearEstablished],
+    ['# Employees',F.numEmployees],['Gross Income',F.grossIncome?'$'+F.grossIncome:'—'],['Net Income',F.netIncome?'$'+F.netIncome:'—'],
+    ['25 or fewer?',F.has25orFewer],['Export Control',F.exportControl],
+    ['PART 7 — SIGNATORY'],
+    ['Signatory',[F.sigFirstName,F.sigLastName].filter(Boolean).join(' ')||'—'],
+    ['Title',F.sigTitle||'—'],['Phone',F.sigPhone||'—'],['Email',F.sigEmail||'—'],
   ];
-  return(
-    <div>
-      <Sec title="Review Your Answers"/>
-      <p style={{fontSize:13,color:"#5a6a8a",marginBottom:16}}>
-        Click <strong>"Submit & Download I-129"</strong> to fill the <strong>official USCIS PDF</strong> and download it instantly.
-        {" "}<span style={{background:"#e8f0fe",color:"#1a56db",padding:"2px 6px",borderRadius:4,fontSize:12}}>The real form — not a replica</span>
-      </p>
-      <div style={{border:"1.5px solid #d5dce8",borderRadius:10,overflow:"hidden"}}>
-        {rows.map(([label,val],i)=>(
-          <div key={i} style={{display:"flex",borderBottom:i<rows.length-1?"1px solid #eef2f8":"none",background:i%2===0?"#f9fbff":"#fff"}}>
-            <div style={{width:190,padding:"8px 14px",fontSize:12,fontWeight:700,color:"#5a6a8a",flexShrink:0}}>{label}</div>
-            <div style={{padding:"8px 14px",fontSize:13,color:"#1a2744"}}>{val||<span style={{color:"#bbb",fontStyle:"italic"}}>—</span>}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-function SuccessScreen({filename,onReset}){return(
-  <div className="fade-in" style={{textAlign:"center",padding:"50px 20px"}}>
-    <div style={{fontSize:72,marginBottom:16}}>📥</div>
-    <h2 style={{color:"#fff",fontSize:26,fontWeight:800,marginBottom:12}}>Your I-129 is Downloading!</h2>
-    <p style={{color:"#a0c4ff",fontSize:15,marginBottom:8}}>The official USCIS PDF has been filled and saved to your device.</p>
-    <p style={{color:"#7aa3d4",fontSize:13,marginBottom:8}}>File: <strong style={{color:"#fff"}}>{filename}</strong></p>
-    <p style={{color:"#6a8ab0",fontSize:12,marginBottom:36}}>Open it in Adobe Acrobat to review, add signatures, and print.</p>
-    <button onClick={onReset}
-      style={{padding:"14px 26px",borderRadius:10,border:"2px solid rgba(255,255,255,.3)",background:"transparent",
-        color:"#fff",cursor:"pointer",fontWeight:600,fontSize:14}}>
-      ↩ Start New Form
-    </button>
+  const rowsHtml=rows.map(r=>{
+    if(r.length===1) return `<div class="review-row"><div class="review-section-row">${r[0]}</div></div>`;
+    const v=r[1]||'';
+    return `<div class="review-row"><div class="review-key">${r[0]}</div><div class="review-val">${v?esc(v):`<span class="empty">—</span>`}</div></div>`;
+  }).join('');
+
+  return `
+  <div style="margin-bottom:18px;padding:13px 16px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:6px;font-size:13px;color:var(--muted)">
+    ✅ Review all information. Click <strong style="color:var(--text)">Generate Pre-filled I-129 PDF</strong> to fill the official USCIS form and download it instantly.
   </div>
-)}
-
-// ── Main App ───────────────────────────────────────────────────
-function App(){
-  const [step,    setStep]    = useState(0);
-  const [f,       setF]       = useState(init);
-  const [status,  setStatus]  = useState("idle"); // idle | loading | success | error
-  const [errMsg,  setErrMsg]  = useState("");
-  const [filename,setFilename]= useState("");
-
-  const u = useCallback((k,v)=>setF(prev=>({...prev,[k]:v})),[]);
-
-  const benName = `${f.benFirstName} ${f.benMiddleName||""} ${f.benLastName}`.trim().replace(/\s+/g," ");
-
-  const handleSubmit = async () => {
-    setStatus("loading");
-    setErrMsg("");
-    try {
-      const res = await fetch("/fill", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(f),
-      });
-
-      const contentType = res.headers.get("content-type") || "";
-
-      if(!res.ok){
-        // Try to get error message, fallback gracefully
-        let errText = `Server error (HTTP ${res.status})`;
-        try {
-          if(contentType.includes("application/json")){
-            const j = await res.json();
-            errText = j.error || errText;
-          } else {
-            const t = await res.text();
-            errText = t.slice(0,200) || errText;
-          }
-        } catch(_){}
-        throw new Error(errText);
-      }
-
-      if(!contentType.includes("pdf")){
-        // Unexpected response type — try to show what we got
-        const t = await res.text();
-        throw new Error("Server returned unexpected response: " + t.slice(0,200));
-      }
-
-      const blob = await res.blob();
-      if(blob.size < 1000){
-        throw new Error("PDF returned was too small — server may have failed silently");
-      }
-      const name = `I-129_${benName.replace(/\s/g,"_")||"form"}.pdf`;
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      a.href = url; a.download = name; a.click();
-      URL.revokeObjectURL(url);
-      setFilename(name);
-      setStatus("success");
-    } catch(e){
-      setErrMsg(e.message||"Unknown error");
-      setStatus("error");
-    }
-  };
-
-  const stepContent=[
-    <PetitionerStep f={f} u={u}/>,
-    <BeneficiaryStep f={f} u={u}/>,
-    <EmploymentStep f={f} u={u}/>,
-    <ClassificationStep f={f} u={u}/>,
-    <ReviewStep f={f}/>,
-  ];
-  const pct=(step/(STEPS.length-1))*100;
-
-  return(
-    <div style={{maxWidth:800,margin:"0 auto"}}>
-      {/* Header */}
-      <div style={{textAlign:"center",marginBottom:28}}>
-        <div style={{display:"inline-flex",alignItems:"center",gap:10,background:"rgba(255,255,255,.08)",borderRadius:50,padding:"7px 18px",marginBottom:14}}>
-          <span style={{fontSize:18}}>🇺🇸</span>
-          <span style={{color:"#a0c4ff",fontWeight:600,fontSize:12,letterSpacing:1}}>USCIS FORM I-129</span>
-        </div>
-        <h1 style={{color:"#fff",fontSize:26,fontWeight:800,margin:"0 0 6px",letterSpacing:-.5}}>Petition for Nonimmigrant Worker</h1>
-        <p style={{color:"#7aa3d4",fontSize:13,margin:0}}>Fill the questionnaire → download the official pre-filled USCIS PDF instantly</p>
-      </div>
-
-      {status==="success"
-        ? <SuccessScreen filename={filename} onReset={()=>{setF(init);setStep(0);setStatus("idle")}}/>
-        : <>
-          {/* Step pills */}
-          <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:20,flexWrap:"wrap"}}>
-            {STEPS.map((s,i)=>(
-              <button key={s.id} className="step-btn" onClick={()=>setStep(i)}
-                style={{display:"flex",alignItems:"center",gap:5,padding:"7px 13px",borderRadius:50,border:"none",
-                  cursor:"pointer",fontWeight:600,fontSize:12,
-                  background:i===step?"#2563eb":i<step?"rgba(37,99,235,.3)":"rgba(255,255,255,.1)",
-                  color:i===step?"#fff":i<step?"#a0c4ff":"#5a7aaa"}}>
-                {s.icon} {s.title} {i<step&&<span style={{color:"#4ade80"}}>✓</span>}
-              </button>
-            ))}
-          </div>
-
-          {/* Progress */}
-          <div style={{height:4,background:"rgba(255,255,255,.1)",borderRadius:2,marginBottom:20,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#2563eb,#60a5fa)",borderRadius:2,transition:"width .3s"}}/>
-          </div>
-
-          {/* Card */}
-          <div style={{background:"#fff",borderRadius:16,boxShadow:"0 24px 80px rgba(0,0,0,.4)",overflow:"hidden"}}>
-            <div style={{background:"linear-gradient(135deg,#1a2744,#2563eb)",padding:"16px 26px"}}>
-              <div style={{fontSize:17,fontWeight:700,color:"#fff"}}>{STEPS[step].icon} {STEPS[step].title}</div>
-              <div style={{fontSize:12,color:"#93c5fd",marginTop:2}}>Step {step+1} of {STEPS.length}</div>
-            </div>
-            <div style={{padding:"26px 30px",maxHeight:"60vh",overflowY:"auto"}}>{stepContent[step]}</div>
-          </div>
-
-          {/* Error */}
-          {status==="error"&&<div style={{marginTop:12,padding:"12px 16px",background:"rgba(239,68,68,.15)",borderRadius:8,color:"#fca5a5",fontSize:13,border:"1px solid rgba(239,68,68,.3)"}}>
-            ⚠️ {errMsg}
-          </div>}
-
-          {/* Nav */}
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:18}}>
-            <button className="nav-btn" onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0}
-              style={{padding:"11px 26px",borderRadius:10,border:"2px solid rgba(255,255,255,.2)",background:"transparent",
-                color:step===0?"rgba(255,255,255,.3)":"#fff",cursor:step===0?"default":"pointer",fontWeight:600,fontSize:14}}>
-              ← Previous
-            </button>
-            {step<STEPS.length-1
-              ?<button className="nav-btn" onClick={()=>setStep(s=>s+1)}
-                style={{padding:"11px 30px",borderRadius:10,border:"none",background:"#2563eb",color:"#fff",
-                  cursor:"pointer",fontWeight:700,fontSize:14,boxShadow:"0 4px 20px rgba(37,99,235,.5)"}}>
-                Next →
-              </button>
-              :<button className="nav-btn" onClick={handleSubmit} disabled={status==="loading"}
-                style={{padding:"11px 30px",borderRadius:10,border:"none",
-                  background:status==="loading"?"#4a5568":"linear-gradient(135deg,#16a34a,#22c55e)",
-                  color:"#fff",cursor:status==="loading"?"default":"pointer",fontWeight:700,fontSize:14,
-                  boxShadow:status==="loading"?"none":"0 4px 20px rgba(22,163,74,.5)"}}>
-                {status==="loading"?<><span className="spinner"/>Generating PDF…</>:"📥 Submit & Download I-129"}
-              </button>}
-          </div>
-        </>
-      }
-    </div>
-  );
+  <div class="review-table">${rowsHtml}</div>`;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+const renderers=[renderS0,renderS1,renderS2,renderS3,renderS4,renderS5,renderS6,renderS7,renderS8,renderS9];
+
+// ─── Nav ──────────────────────────────────────────────────────────────────────
+function renderNav(){
+  let last='';
+  document.getElementById('nav').innerHTML=STEPS.map((s,i)=>{
+    let ph='';
+    if(s.part&&s.part!==last){ph=`<div class="part-header">${s.part}</div>`;last=s.part;}
+    const cls=i===step?'active':i<step?'done':'';
+    return `${ph}<button class="nav-item ${cls}" onclick="goStep(${i})"><span class="nav-num">${String(i+1).padStart(2,'0')}</span>${s.title}${i<step?'<span class="nav-check">✓</span>':''}</button>`;
+  }).join('');
+}
+
+function renderStep(){
+  document.getElementById('prog').style.width=(step/(STEPS.length-1)*100)+'%';
+  const s=STEPS[step],isLast=step===STEPS.length-1,isFirst=step===0;
+  document.getElementById('content').innerHTML=`
+    <div class="step-header">
+      <div class="step-badge">${s.part||'Final Review'}</div>
+      <div class="step-title">${s.title}</div>
+      <div class="step-sub">${s.sub}</div>
+    </div>
+    ${renderers[step]()}
+    ${errHtml}
+    <div class="nav-btns">
+      <button class="btn btn-ghost" onclick="goStep(${step-1})" ${isFirst?'disabled':''}>← Previous</button>
+      ${isLast
+        ?`<button class="btn btn-submit" onclick="submitForm()" id="sub">📥 Generate Pre-filled I-129 PDF</button>`
+        :`<button class="btn btn-primary" onclick="goStep(${step+1})">Next →</button>`
+      }
+    </div>`;
+  renderNav();
+  restoreInputValues();
+}
+
+function restoreInputValues(){
+  document.querySelectorAll('input[data-key]').forEach(el=>{
+    const k=el.getAttribute('data-key');
+    if(F[k]!==undefined) el.value=F[k];
+  });
+}
+function goStep(i){if(i<0||i>=STEPS.length)return;step=i;errHtml='';renderStep();window.scrollTo({top:0,behavior:'smooth'});}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+async function submitForm(){
+  const btn=document.getElementById('sub');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Generating PDF…';errHtml='';
+
+  try{
+    const res=await fetch('https://web-production-81f11.up.railway.app/fill',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(F)
+    });
+    const ct=res.headers.get('content-type')||'';
+    if(!res.ok){
+      let msg=`Server error (HTTP ${res.status})`;
+      try{if(ct.includes('json')){const j=await res.json();msg=j.error||msg;}else{msg=(await res.text()).slice(0,200)||msg;}}catch(_){}
+      throw new Error(msg);
+    }
+    if(!ct.includes('pdf')){throw new Error('Server returned unexpected response: '+(await res.text()).slice(0,200));}
+    const blob=await res.blob();
+    if(blob.size<1000)throw new Error('PDF too small — server may have failed silently. Check Railway logs.');
+    const ben=[F.benFirstName,F.benLastName].filter(Boolean).join('_')||'form';
+    const name=`I-129_${ben}.pdf`;
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);
+    document.getElementById('content').innerHTML=`
+      <div class="success-screen">
+        <div class="ico">📥</div>
+        <h2>PDF Downloaded!</h2>
+        <p>The official USCIS I-129 has been pre-filled and saved to your device.</p>
+        <div class="file-pill">${name}</div>
+        <p>Open in Adobe Acrobat to review all fields. The authorized signatory must physically sign and date Part 7 (Item 2) before filing with USCIS.</p>
+        <br><button class="btn btn-ghost" style="margin-top:16px" onclick="location.reload()">↩ Start New Form</button>
+      </div>`;
+  }catch(e){
+    errHtml=`<div class="err-box">⚠️ ${esc(e.message)}</div>`;
+    renderStep();
+    document.getElementById('sub').disabled=false;
+    document.getElementById('sub').innerHTML='📥 Generate Pre-filled I-129 PDF';
+  }
+}
+
+renderStep();
 </script>
 </body>
 </html>
