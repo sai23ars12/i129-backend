@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: i129-form
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    envVars:
+      - key: NOTIFY_EMAIL
+        value: you@youremail.com   # ← change this
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: your-gmail@gmail.com  # ← change this
+      - key: SMTP_PASS
+        value: your-app-password     # ← change this
