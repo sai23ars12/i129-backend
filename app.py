@@ -27,6 +27,8 @@ NOTIFY_EMAIL  = os.environ.get("NOTIFY_EMAIL", "")   # where YOU receive submiss
 
 def fill_i129(f, input_pdf, output_pdf):
     reader = PdfReader(input_pdf)
+    if reader.is_encrypted:
+        reader.decrypt("")  # USCIS PDFs use empty-password AES encryption
     writer = PdfWriter()
     writer.append(reader)
 

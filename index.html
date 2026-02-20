@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>I-129 Petition – Consultant Questionnaire</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f1b3d 0%,#1a3a6b 50%,#0d2a5e 100%);min-height:100vh;padding:30px 16px}
+  input,select{font-family:inherit}
+  .inp:focus{border-color:#2563eb!important;outline:none}
+  .step-btn:hover,.nav-btn:hover{opacity:.85}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#3a5a9a;border-radius:3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes fade-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fade-in .4s ease}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useCallback} = React;
+
+const STEPS=[
+  {id:"petitioner",   title:"Petitioner Info",    icon:"🏢"},
+  {id:"beneficiary",  title:"Beneficiary Info",   icon:"👤"},
+  {id:"employment",   title:"Employment Details", icon:"💼"},
+  {id:"classification",title:"Visa Classification",icon:"📋"},
+  {id:"review",       title:"Review & Submit",    icon:"✅"},
+];
+const CLASSIFICATIONS=[
+  "H-1B Specialty Occupation","H-1B1 Chile/Singapore","H-2A Agricultural Worker",
+  "H-2B Non-agricultural Worker","H-3 Trainee","L-1A Manager/Executive","L-1B Specialized Knowledge",
+  "O-1A Extraordinary Ability (Sciences/Business/Athletics)","O-1B Extraordinary Ability (Arts/TV/Film)",
+  "E-1 Treaty Trader","E-2 Treaty Investor","TN Canada","TN Mexico","R-1 Religious Worker","Q-1 Cultural Exchange",
+];
+const US_STATES=["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME",
+  "MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD",
+  "TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
+const init={
+  petitionerType:"company",companyName:"",petFirstName:"",petLastName:"",petMiddleName:"",
+  fein:"",petStreet:"",petApt:"",petCity:"",petState:"",petZip:"",petCountry:"United States",
+  petPhone:"",petMobile:"",petEmail:"",isNonprofit:"",
+  benFirstName:"",benLastName:"",benMiddleName:"",benOtherNames:"",benDob:"",benSex:"",
+  benCountryBirth:"",benProvinceBirth:"",benCountryCitizenship:"",benSSN:"",benANumber:"",
+  benPassportNumber:"",benPassportCountry:"",benPassportIssued:"",benPassportExpires:"",
+  benI94:"",benCurrentStatus:"",benStatusExpires:"",benLastArrival:"",benEAD:"",benSEVIS:"",
+  benStreet:"",benApt:"",benCity:"",benState:"",benZip:"",
+  jobTitle:"",lcaNumber:"",workStreet:"",workCity:"",workState:"",workZip:"",
+  isOffsite:"",isThirdParty:"",thirdPartyName:"",isFullTime:"yes",hoursPerWeek:"",
+  wages:"",wagesPer:"year",startDate:"",endDate:"",
+  businessType:"",yearEstablished:"",numEmployees:"",grossIncome:"",netIncome:"",hasItinerary:"no",
+  classification:"",basisForClassification:"new",totalWorkers:"1",priorReceiptNumber:"",
+  requestedAction:"notify",consultateCity:"",consultateCountry:"",
+};
+
+// ── Design system ──────────────────────────────────────────────
+const IS={width:"100%",padding:"9px 12px",border:"1.5px solid #d5dce8",borderRadius:7,fontSize:14,color:"#1a2744",background:"#f9fbff"};
+function Inp({v,on,placeholder,type="text"}){return <input className="inp" type={type} value={v} onChange={e=>on(e.target.value)} placeholder={placeholder} style={IS}/>}
+function Sel({v,on,opts,placeholder}){return(
+  <select value={v} onChange={e=>on(e.target.value)} className="inp" style={{...IS,cursor:"pointer"}}>
+    <option value="">{placeholder||"Select…"}</option>
+    {opts.map(o=>typeof o==="string"?<option key={o} value={o}>{o}</option>:<option key={o.value} value={o.value}>{o.label}</option>)}
+  </select>
+)}
+function Radio({v,on,opts}){return(
+  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+    {opts.map(o=>(
+      <label key={o.value} style={{display:"flex",alignItems:"center",gap:7,cursor:"pointer",fontSize:14,color:"#1a2744"}}>
+        <input type="radio" value={o.value} checked={v===o.value} onChange={()=>on(o.value)} style={{accentColor:"#2563eb"}}/>
+        {o.label}
+      </label>
+    ))}
+  </div>
+)}
+function F({label,required,hint,children}){return(
+  <div style={{marginBottom:16}}>
+    <label style={{display:"block",fontWeight:600,fontSize:13,color:"#1a2744",marginBottom:4,letterSpacing:.3}}>
+      {label}{required&&<span style={{color:"#c0392b",marginLeft:3}}>*</span>}
+    </label>
+    {hint&&<div style={{fontSize:11,color:"#7f8c8d",marginBottom:4}}>{hint}</div>}
+    {children}
+  </div>
+)}
+function Row({children,cols="1fr 1fr"}){return <div style={{display:"grid",gridTemplateColumns:cols,gap:14}}>{children}</div>}
+function Sec({title}){return <div style={{fontSize:12,fontWeight:700,color:"#2563eb",textTransform:"uppercase",letterSpacing:1.2,marginBottom:12,marginTop:16,borderBottom:"2px solid #e8f0fe",paddingBottom:5}}>{title}</div>}
+
+// ── Form steps ─────────────────────────────────────────────────
+function PetitionerStep({f,u}){return(
+  <div>
+    <Sec title="Petitioner Type"/>
+    <F label="Filing as"><Radio v={f.petitionerType} on={v=>u("petitionerType",v)} opts={[{value:"company",label:"Company / Organization"},{value:"individual",label:"Individual"}]}/></F>
+    {f.petitionerType==="company"
+      ?<F label="Company or Organization Name" required><Inp v={f.companyName} on={v=>u("companyName",v)} placeholder="Acme Corporation"/></F>
+      :<Row cols="1fr 1fr 1fr"><F label="Last Name" required><Inp v={f.petLastName} on={v=>u("petLastName",v)}/></F><F label="First Name" required><Inp v={f.petFirstName} on={v=>u("petFirstName",v)}/></F><F label="Middle Name"><Inp v={f.petMiddleName} on={v=>u("petMiddleName",v)}/></F></Row>}
+    <F label="FEIN" hint="9-digit Employer ID from IRS"><Inp v={f.fein} on={v=>u("fein",v)} placeholder="XX-XXXXXXX"/></F>
+    <Sec title="Mailing Address"/>
+    <Row cols="2fr 1fr"><F label="Street Number and Name" required><Inp v={f.petStreet} on={v=>u("petStreet",v)} placeholder="123 Main Street"/></F><F label="Apt/Suite"><Inp v={f.petApt} on={v=>u("petApt",v)}/></F></Row>
+    <Row cols="1fr 1fr 1fr"><F label="City" required><Inp v={f.petCity} on={v=>u("petCity",v)}/></F><F label="State"><Sel v={f.petState} on={v=>u("petState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.petZip} on={v=>u("petZip",v)}/></F></Row>
+    <F label="Country"><Inp v={f.petCountry} on={v=>u("petCountry",v)}/></F>
+    <Sec title="Contact Information"/>
+    <Row cols="1fr 1fr 1fr"><F label="Daytime Phone"><Inp v={f.petPhone} on={v=>u("petPhone",v)} placeholder="(555) 000-0000"/></F><F label="Mobile Phone"><Inp v={f.petMobile} on={v=>u("petMobile",v)} placeholder="(555) 000-0000"/></F><F label="Email"><Inp v={f.petEmail} on={v=>u("petEmail",v)} placeholder="hr@company.com"/></F></Row>
+    <F label="Nonprofit / governmental research org?"><Radio v={f.isNonprofit} on={v=>u("isNonprofit",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>
+  </div>
+)}
+function BeneficiaryStep({f,u}){return(
+  <div>
+    <Sec title="Beneficiary Identity"/>
+    <Row cols="1fr 1fr 1fr"><F label="Last Name" required><Inp v={f.benLastName} on={v=>u("benLastName",v)}/></F><F label="First Name" required><Inp v={f.benFirstName} on={v=>u("benFirstName",v)}/></F><F label="Middle Name"><Inp v={f.benMiddleName} on={v=>u("benMiddleName",v)}/></F></Row>
+    <F label="Other Names Used" hint="Aliases, maiden name"><Inp v={f.benOtherNames} on={v=>u("benOtherNames",v)} placeholder="N/A if none"/></F>
+    <Row><F label="Date of Birth" required><Inp type="date" v={f.benDob} on={v=>u("benDob",v)}/></F><F label="Sex" required><Radio v={f.benSex} on={v=>u("benSex",v)} opts={[{value:"male",label:"Male"},{value:"female",label:"Female"}]}/></F></Row>
+    <Row><F label="Country of Birth" required><Inp v={f.benCountryBirth} on={v=>u("benCountryBirth",v)}/></F><F label="Province of Birth"><Inp v={f.benProvinceBirth} on={v=>u("benProvinceBirth",v)}/></F></Row>
+    <F label="Country of Citizenship / Nationality" required><Inp v={f.benCountryCitizenship} on={v=>u("benCountryCitizenship",v)}/></F>
+    <Row><F label="U.S. SSN (if any)"><Inp v={f.benSSN} on={v=>u("benSSN",v)} placeholder="XXX-XX-XXXX"/></F><F label="Alien Registration Number (A-Number)"><Inp v={f.benANumber} on={v=>u("benANumber",v)} placeholder="AXXXXXXXXX"/></F></Row>
+    <Sec title="Passport / Travel Document"/>
+    <Row cols="1fr 1fr 1fr"><F label="Passport Number"><Inp v={f.benPassportNumber} on={v=>u("benPassportNumber",v)}/></F><F label="Country of Issuance"><Inp v={f.benPassportCountry} on={v=>u("benPassportCountry",v)}/></F><F label="Issue Date"><Inp type="date" v={f.benPassportIssued} on={v=>u("benPassportIssued",v)}/></F></Row>
+    <F label="Passport Expiration Date"><Inp type="date" v={f.benPassportExpires} on={v=>u("benPassportExpires",v)}/></F>
+    <Sec title="U.S. Entry Info (if in the U.S.)"/>
+    <Row><F label="I-94 Number"><Inp v={f.benI94} on={v=>u("benI94",v)}/></F><F label="Date of Last Arrival"><Inp type="date" v={f.benLastArrival} on={v=>u("benLastArrival",v)}/></F></Row>
+    <Row><F label="Current Nonimmigrant Status"><Inp v={f.benCurrentStatus} on={v=>u("benCurrentStatus",v)} placeholder="e.g. F-1, H-4"/></F><F label="Status Expires"><Inp type="date" v={f.benStatusExpires} on={v=>u("benStatusExpires",v)}/></F></Row>
+    <Row><F label="EAD Number (if any)"><Inp v={f.benEAD} on={v=>u("benEAD",v)}/></F><F label="SEVIS Number (if any)"><Inp v={f.benSEVIS} on={v=>u("benSEVIS",v)}/></F></Row>
+    <Sec title="Current U.S. Address"/>
+    <Row cols="2fr 1fr"><F label="Street"><Inp v={f.benStreet} on={v=>u("benStreet",v)}/></F><F label="Apt/Suite"><Inp v={f.benApt} on={v=>u("benApt",v)}/></F></Row>
+    <Row cols="1fr 1fr 1fr"><F label="City"><Inp v={f.benCity} on={v=>u("benCity",v)}/></F><F label="State"><Sel v={f.benState} on={v=>u("benState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.benZip} on={v=>u("benZip",v)}/></F></Row>
+  </div>
+)}
+function EmploymentStep({f,u}){return(
+  <div>
+    <Sec title="Job Details"/>
+    <Row><F label="Job Title" required><Inp v={f.jobTitle} on={v=>u("jobTitle",v)} placeholder="Software Engineer"/></F><F label="LCA / ETA Case Number" hint="From Dept. of Labor"><Inp v={f.lcaNumber} on={v=>u("lcaNumber",v)}/></F></Row>
+    <Sec title="Work Location"/>
+    <F label="Street Number and Name"><Inp v={f.workStreet} on={v=>u("workStreet",v)} placeholder="Same as petitioner if blank"/></F>
+    <Row cols="1fr 1fr 1fr"><F label="City"><Inp v={f.workCity} on={v=>u("workCity",v)}/></F><F label="State"><Sel v={f.workState} on={v=>u("workState",v)} opts={US_STATES}/></F><F label="ZIP"><Inp v={f.workZip} on={v=>u("workZip",v)}/></F></Row>
+    <Row><F label="Will beneficiary work offsite?"><Radio v={f.isOffsite} on={v=>u("isOffsite",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F><F label="Third-party location?"><Radio v={f.isThirdParty} on={v=>u("isThirdParty",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F></Row>
+    {f.isThirdParty==="yes"&&<F label="Third-Party Organization Name"><Inp v={f.thirdPartyName} on={v=>u("thirdPartyName",v)}/></F>}
+    <Sec title="Schedule & Compensation"/>
+    <Row><F label="Full-time position?"><Radio v={f.isFullTime} on={v=>u("isFullTime",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>{f.isFullTime==="no"&&<F label="Hours Per Week"><Inp v={f.hoursPerWeek} on={v=>u("hoursPerWeek",v)} placeholder="20"/></F>}</Row>
+    <Row cols="2fr 1fr"><F label="Wages ($)" required><Inp v={f.wages} on={v=>u("wages",v)} placeholder="100000"/></F><F label="Per"><Sel v={f.wagesPer} on={v=>u("wagesPer",v)} opts={["hour","week","month","year"]}/></F></Row>
+    <Row><F label="Start Date" required><Inp type="date" v={f.startDate} on={v=>u("startDate",v)}/></F><F label="End Date" required><Inp type="date" v={f.endDate} on={v=>u("endDate",v)}/></F></Row>
+    <Sec title="Employer Business Info"/>
+    <Row cols="1fr 1fr 1fr"><F label="Type of Business"><Inp v={f.businessType} on={v=>u("businessType",v)} placeholder="Technology Services"/></F><F label="Year Established"><Inp v={f.yearEstablished} on={v=>u("yearEstablished",v)}/></F><F label="U.S. Employees"><Inp v={f.numEmployees} on={v=>u("numEmployees",v)}/></F></Row>
+    <Row><F label="Gross Annual Income ($)"><Inp v={f.grossIncome} on={v=>u("grossIncome",v)}/></F><F label="Net Annual Income ($)"><Inp v={f.netIncome} on={v=>u("netIncome",v)}/></F></Row>
+    <F label="Itinerary included?"><Radio v={f.hasItinerary} on={v=>u("hasItinerary",v)} opts={[{value:"yes",label:"Yes"},{value:"no",label:"No"}]}/></F>
+  </div>
+)}
+function ClassificationStep({f,u}){return(
+  <div>
+    <Sec title="Visa Classification"/>
+    <F label="Requested Nonimmigrant Classification" required><Sel v={f.classification} on={v=>u("classification",v)} opts={CLASSIFICATIONS} placeholder="Select classification…"/></F>
+    <F label="Basis for Classification" required>
+      <Sel v={f.basisForClassification} on={v=>u("basisForClassification",v)} opts={[
+        {value:"new",label:"New Employment"},{value:"concurrent",label:"New Concurrent Employment"},
+        {value:"change_employer",label:"Change of Employer"},{value:"amended",label:"Amended Petition"},
+        {value:"change_prev",label:"Change in Previously Approved Employment"},{value:"continuation",label:"Continuation with Same Employer"},
+      ]}/>
+    </F>
+    <Row><F label="Total Number of Workers"><Inp v={f.totalWorkers} on={v=>u("totalWorkers",v)} placeholder="1"/></F><F label="Prior Receipt Number" hint="Write 'None' if not applicable"><Inp v={f.priorReceiptNumber} on={v=>u("priorReceiptNumber",v)} placeholder="None"/></F></Row>
+    <F label="Requested Action" required>
+      <Sel v={f.requestedAction} on={v=>u("requestedAction",v)} opts={[
+        {value:"notify",label:"Notify consulate so beneficiary can obtain visa"},
+        {value:"change_extend",label:"Change status and extend stay (beneficiary in U.S.)"},
+        {value:"extend",label:"Extend the stay"},{value:"amend",label:"Amend the stay"},
+      ]}/>
+    </F>
+    <Sec title="Processing Office"/>
+    <Row><F label="Consulate / Port of Entry City"><Inp v={f.consultateCity} on={v=>u("consultateCity",v)} placeholder="Mumbai"/></F><F label="Country"><Inp v={f.consultateCountry} on={v=>u("consultateCountry",v)} placeholder="India"/></F></Row>
+  </div>
+)}
+function ReviewStep({f}){
+  const petName=f.petitionerType==="company"?f.companyName:`${f.petFirstName} ${f.petLastName}`;
+  const rows=[
+    ["Petitioner",petName],["FEIN",f.fein],["Petitioner Address",`${f.petStreet}, ${f.petCity}, ${f.petState} ${f.petZip}`],
+    ["Petitioner Email",f.petEmail],["Beneficiary",`${f.benFirstName} ${f.benMiddleName} ${f.benLastName}`.trim()],
+    ["Date of Birth",f.benDob],["Citizenship",f.benCountryCitizenship],["Passport #",f.benPassportNumber],
+    ["Current Status",f.benCurrentStatus],["Classification",f.classification],["Basis",f.basisForClassification],
+    ["Job Title",f.jobTitle],["LCA Number",f.lcaNumber],["Start Date",f.startDate],["End Date",f.endDate],
+    ["Wages",f.wages?`$${f.wages} per ${f.wagesPer}`:""],["Employees",f.numEmployees],
+    ["Processing Office",`${f.consultateCity}, ${f.consultateCountry}`],
+  ];
+  return(
+    <div>
+      <Sec title="Review Your Answers"/>
+      <p style={{fontSize:13,color:"#5a6a8a",marginBottom:16}}>
+        Click <strong>"Submit & Download I-129"</strong> to fill the <strong>official USCIS PDF</strong> and download it instantly.
+        {" "}<span style={{background:"#e8f0fe",color:"#1a56db",padding:"2px 6px",borderRadius:4,fontSize:12}}>The real form — not a replica</span>
+      </p>
+      <div style={{border:"1.5px solid #d5dce8",borderRadius:10,overflow:"hidden"}}>
+        {rows.map(([label,val],i)=>(
+          <div key={i} style={{display:"flex",borderBottom:i<rows.length-1?"1px solid #eef2f8":"none",background:i%2===0?"#f9fbff":"#fff"}}>
+            <div style={{width:190,padding:"8px 14px",fontSize:12,fontWeight:700,color:"#5a6a8a",flexShrink:0}}>{label}</div>
+            <div style={{padding:"8px 14px",fontSize:13,color:"#1a2744"}}>{val||<span style={{color:"#bbb",fontStyle:"italic"}}>—</span>}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SuccessScreen({filename,onReset}){return(
+  <div className="fade-in" style={{textAlign:"center",padding:"50px 20px"}}>
+    <div style={{fontSize:72,marginBottom:16}}>📥</div>
+    <h2 style={{color:"#fff",fontSize:26,fontWeight:800,marginBottom:12}}>Your I-129 is Downloading!</h2>
+    <p style={{color:"#a0c4ff",fontSize:15,marginBottom:8}}>The official USCIS PDF has been filled and saved to your device.</p>
+    <p style={{color:"#7aa3d4",fontSize:13,marginBottom:8}}>File: <strong style={{color:"#fff"}}>{filename}</strong></p>
+    <p style={{color:"#6a8ab0",fontSize:12,marginBottom:36}}>Open it in Adobe Acrobat to review, add signatures, and print.</p>
+    <button onClick={onReset}
+      style={{padding:"14px 26px",borderRadius:10,border:"2px solid rgba(255,255,255,.3)",background:"transparent",
+        color:"#fff",cursor:"pointer",fontWeight:600,fontSize:14}}>
+      ↩ Start New Form
+    </button>
+  </div>
+)}
+
+// ── Main App ───────────────────────────────────────────────────
+function App(){
+  const [step,    setStep]    = useState(0);
+  const [f,       setF]       = useState(init);
+  const [status,  setStatus]  = useState("idle"); // idle | loading | success | error
+  const [errMsg,  setErrMsg]  = useState("");
+  const [filename,setFilename]= useState("");
+
+  const u = useCallback((k,v)=>setF(prev=>({...prev,[k]:v})),[]);
+
+  const benName = `${f.benFirstName} ${f.benMiddleName||""} ${f.benLastName}`.trim().replace(/\s+/g," ");
+
+  const handleSubmit = async () => {
+    setStatus("loading");
+    setErrMsg("");
+    try {
+      const res = await fetch("https://web-production-81f11.up.railway.app/fill", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(f),
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+
+      if(!res.ok){
+        // Try to get error message, fallback gracefully
+        let errText = `Server error (HTTP ${res.status})`;
+        try {
+          if(contentType.includes("application/json")){
+            const j = await res.json();
+            errText = j.error || errText;
+          } else {
+            const t = await res.text();
+            errText = t.slice(0,200) || errText;
+          }
+        } catch(_){}
+        throw new Error(errText);
+      }
+
+      if(!contentType.includes("pdf")){
+        // Unexpected response type — try to show what we got
+        const t = await res.text();
+        throw new Error("Server returned unexpected response: " + t.slice(0,200));
+      }
+
+      const blob = await res.blob();
+      if(blob.size < 1000){
+        throw new Error("PDF returned was too small — server may have failed silently");
+      }
+      const name = `I-129_${benName.replace(/\s/g,"_")||"form"}.pdf`;
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+      setFilename(name);
+      setStatus("success");
+    } catch(e){
+      setErrMsg(e.message||"Unknown error");
+      setStatus("error");
+    }
+  };
+
+  const stepContent=[
+    <PetitionerStep f={f} u={u}/>,
+    <BeneficiaryStep f={f} u={u}/>,
+    <EmploymentStep f={f} u={u}/>,
+    <ClassificationStep f={f} u={u}/>,
+    <ReviewStep f={f}/>,
+  ];
+  const pct=(step/(STEPS.length-1))*100;
+
+  return(
+    <div style={{maxWidth:800,margin:"0 auto"}}>
+      {/* Header */}
+      <div style={{textAlign:"center",marginBottom:28}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:10,background:"rgba(255,255,255,.08)",borderRadius:50,padding:"7px 18px",marginBottom:14}}>
+          <span style={{fontSize:18}}>🇺🇸</span>
+          <span style={{color:"#a0c4ff",fontWeight:600,fontSize:12,letterSpacing:1}}>USCIS FORM I-129</span>
+        </div>
+        <h1 style={{color:"#fff",fontSize:26,fontWeight:800,margin:"0 0 6px",letterSpacing:-.5}}>Petition for Nonimmigrant Worker</h1>
+        <p style={{color:"#7aa3d4",fontSize:13,margin:0}}>Fill the questionnaire → download the official pre-filled USCIS PDF instantly</p>
+      </div>
+
+      {status==="success"
+        ? <SuccessScreen filename={filename} onReset={()=>{setF(init);setStep(0);setStatus("idle")}}/>
+        : <>
+          {/* Step pills */}
+          <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:20,flexWrap:"wrap"}}>
+            {STEPS.map((s,i)=>(
+              <button key={s.id} className="step-btn" onClick={()=>setStep(i)}
+                style={{display:"flex",alignItems:"center",gap:5,padding:"7px 13px",borderRadius:50,border:"none",
+                  cursor:"pointer",fontWeight:600,fontSize:12,
+                  background:i===step?"#2563eb":i<step?"rgba(37,99,235,.3)":"rgba(255,255,255,.1)",
+                  color:i===step?"#fff":i<step?"#a0c4ff":"#5a7aaa"}}>
+                {s.icon} {s.title} {i<step&&<span style={{color:"#4ade80"}}>✓</span>}
+              </button>
+            ))}
+          </div>
+
+          {/* Progress */}
+          <div style={{height:4,background:"rgba(255,255,255,.1)",borderRadius:2,marginBottom:20,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${pct}%`,background:"linear-gradient(90deg,#2563eb,#60a5fa)",borderRadius:2,transition:"width .3s"}}/>
+          </div>
+
+          {/* Card */}
+          <div style={{background:"#fff",borderRadius:16,boxShadow:"0 24px 80px rgba(0,0,0,.4)",overflow:"hidden"}}>
+            <div style={{background:"linear-gradient(135deg,#1a2744,#2563eb)",padding:"16px 26px"}}>
+              <div style={{fontSize:17,fontWeight:700,color:"#fff"}}>{STEPS[step].icon} {STEPS[step].title}</div>
+              <div style={{fontSize:12,color:"#93c5fd",marginTop:2}}>Step {step+1} of {STEPS.length}</div>
+            </div>
+            <div style={{padding:"26px 30px",maxHeight:"60vh",overflowY:"auto"}}>{stepContent[step]}</div>
+          </div>
+
+          {/* Error */}
+          {status==="error"&&<div style={{marginTop:12,padding:"12px 16px",background:"rgba(239,68,68,.15)",borderRadius:8,color:"#fca5a5",fontSize:13,border:"1px solid rgba(239,68,68,.3)"}}>
+            ⚠️ {errMsg}
+          </div>}
+
+          {/* Nav */}
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:18}}>
+            <button className="nav-btn" onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0}
+              style={{padding:"11px 26px",borderRadius:10,border:"2px solid rgba(255,255,255,.2)",background:"transparent",
+                color:step===0?"rgba(255,255,255,.3)":"#fff",cursor:step===0?"default":"pointer",fontWeight:600,fontSize:14}}>
+              ← Previous
+            </button>
+            {step<STEPS.length-1
+              ?<button className="nav-btn" onClick={()=>setStep(s=>s+1)}
+                style={{padding:"11px 30px",borderRadius:10,border:"none",background:"#2563eb",color:"#fff",
+                  cursor:"pointer",fontWeight:700,fontSize:14,boxShadow:"0 4px 20px rgba(37,99,235,.5)"}}>
+                Next →
+              </button>
+              :<button className="nav-btn" onClick={handleSubmit} disabled={status==="loading"}
+                style={{padding:"11px 30px",borderRadius:10,border:"none",
+                  background:status==="loading"?"#4a5568":"linear-gradient(135deg,#16a34a,#22c55e)",
+                  color:"#fff",cursor:status==="loading"?"default":"pointer",fontWeight:700,fontSize:14,
+                  boxShadow:status==="loading"?"none":"0 4px 20px rgba(22,163,74,.5)"}}>
+                {status==="loading"?<><span className="spinner"/>Generating PDF…</>:"📥 Submit & Download I-129"}
+              </button>}
+          </div>
+        </>
+      }
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
