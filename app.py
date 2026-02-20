@@ -36,6 +36,12 @@ def fill_i129(data, input_pdf):
     writer = PdfWriter()
     writer.append(reader)
 
+    # Remove XFA so PDF viewers render AcroForm fields (not the blank XFA layer)
+    if '/AcroForm' in writer._root_object:
+        acroform = writer._root_object['/AcroForm'].get_object()
+        if '/XFA' in acroform:
+            del acroform['/XFA']
+
     # Build key → page-index map from the writer
     key_to_page = {}
     for pi, page in enumerate(writer.pages):
