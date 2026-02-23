@@ -389,46 +389,49 @@ function renderS7(){ // Part 5b — Employer + export control
 }
 
 
+function ta(key, rows, ph) {
+  return '<textarea class="inp" data-key="' + key + '" rows="' + rows + '" placeholder="' + ph + '" oninput="u(\'' + key + '\',this.value)"></textarea>';
+}
+
 function renderS8(){ // H Classification Supplement
-  const isHL = ['H-1B Specialty Occupation','H-1B1 Chile/Singapore','H-2A Agricultural Worker',
-    'H-2B Non-agricultural Worker','H-3 Trainee','L-1A Manager/Executive','L-1B Specialized Knowledge']
-    .includes(F.classification);
+  const rows_stay = [1,2,3,4,5,6].map(function(n){
+    return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:8px 14px;border-top:1px solid var(--line)">' +
+      inp('hPriorStay'+n+'Class','e.g. H-1B') +
+      inp('hPriorStay'+n+'From','','date') +
+      inp('hPriorStay'+n+'To','','date') +
+    '</div>';
+  }).join('');
+
   return `
   ${sec('Item 3 · Prior H or L Stays in the U.S. (Last 6 Years)')}
-  <div class="info-box">List each period the beneficiary was in the U.S. in H or L status in the past 6 years. Leave blank if none.</div>
+  <div class="info-box">List each period the beneficiary was in H or L status in the past 6 years. Leave blank if none.</div>
   <div style="border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:16px">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);padding:8px 14px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;gap:12px">
       <span>Classification (H-1B, L-1A, etc.)</span><span>Date From</span><span>Date To</span>
     </div>
-    ${[1,2,3,4,5,6].map(n=>`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:8px 14px;border-top:1px solid var(--line)">
-      ${inp('hPriorStay'+n+'Class','e.g. H-1B')}
-      ${inp('hPriorStay'+n+'From','','date')}
-      ${inp('hPriorStay'+n+'To','','date')}
-    </div>`).join('')}
+    ${rows_stay}
   </div>
 
-  ${sec('Section 1 · H-1B Classification — Duties & Experience')}
-  ${fld('Item 1 · Describe the proposed duties',\`<textarea class="inp" data-key="hDuties" rows="4" placeholder="Describe in detail the duties the beneficiary will perform in the U.S." oninput="u('hDuties',this.value)"></textarea>\`,'Be specific — list day-to-day tasks and % of time on each',true)}
-  ${fld('Item 2 · Beneficiary's present occupation and summary of prior work experience',\`<textarea class="inp" data-key="hWorkExperience" rows="4" placeholder="Describe current job title, employer, and summary of relevant prior work history" oninput="u('hWorkExperience',this.value)"></textarea>\`,'',true)}
+  ${sec('Section 1 · H-1B — Proposed Duties & Work Experience')}
+  ${fld('Item 1 · Describe the proposed duties', ta('hDuties',4,'Describe in detail the duties the beneficiary will perform in the U.S.'), 'Be specific — list day-to-day tasks and % of time on each', true)}
+  ${fld('Item 2 · Beneficiary present occupation and summary of prior work experience', ta('hWorkExperience',4,'Describe current job title, employer, and summary of relevant prior work history'), '', true)}
 
   ${sec('Items 6–8 · Additional H Supplement Questions')}
-  ${fld('Item 6 · Are you filing this petition on behalf of a beneficiary subject to the Guam-CNMI visa waiver?',ynbtn('hSubjectToGuam'))}
-  ${fld('Item 7 · Are you requesting a change of employer and was the beneficiary previously in H status?',ynbtn('hChangeOfEmployer'))}
-  ${fld('Item 8A · Does any beneficiary in this petition have a controlling interest in the petitioning organization?',ynbtn('hBenControllingInterest'))}
-  ${F.hBenControllingInterest==='yes'?fld('Item 8B · Explain beneficiary ownership interest',inp('hBenControllingExplain'),'',true):''}
+  ${fld('Item 6 · Filing on behalf of a beneficiary subject to the Guam-CNMI visa waiver?', ynbtn('hSubjectToGuam'))}
+  ${fld('Item 7 · Requesting a change of employer — was beneficiary previously in H status?', ynbtn('hChangeOfEmployer'))}
+  ${fld('Item 8A · Does any beneficiary have a controlling interest in the petitioning organization?', ynbtn('hBenControllingInterest'))}
+  ${F.hBenControllingInterest==='yes' ? fld('Item 8B · Explain beneficiary ownership interest', inp('hBenControllingExplain'), '', true) : ''}
   `;
 }
-
 function renderS9(){ // H-1B Data Collection Supplement
   const edu = [
     {v:'none',l:'No Diploma'},
     {v:'hs',l:'High School Diploma or Equivalent'},
     {v:'some_college',l:'Some College Credit, No Degree'},
-    {v:'associates',l:'Associate's Degree'},
-    {v:'bachelors',l:'Bachelor's Degree'},
+    {v:'associates',l:"Associate's Degree"},
+    {v:'bachelors',l:"Bachelor's Degree"},
     {v:'some_grad',l:'Some Graduate Work, No Degree'},
-    {v:'masters',l:'Master's Degree'},
+    {v:'masters',l:"Master's Degree"},
     {v:'professional',l:'Professional Degree (J.D., M.D., D.D.S., etc.)'},
     {v:'doctorate',l:'Doctorate Degree'},
   ];
@@ -438,11 +441,11 @@ function renderS9(){ // H-1B Data Collection Supplement
     'H-1B dependent = 25 or fewer FTE employees and 8+ H-1B workers, OR 26–50 FTE and 13+ H-1B workers, OR 51+ FTE and H-1B workers = 15%+ of workforce')}
   ${fld('1b · Has the petitioner ever been found to be a willful violator?',ynbtn('h1bWillfulViolator'))}
   ${fld('1c · Is the beneficiary an H-1B nonimmigrant exempt from Dept. of Labor attestation requirements?',ynbtn('h1bExemptDOL'),
-    'Exempt if earning ≥ $60,000/year OR holds a master's degree or higher in the specialty')}
+    "Exempt if earning ≥ $60,000/year OR holds a master's degree or higher in the specialty")}
   ${fld('1d · Does the petitioner employ 50 or more individuals in the United States?',ynbtn('h1b50orMore'))}
   ${F.h1b50orMore==='yes'?fld('1d.1 · Are more than 50% of those U.S. employees in H-1B, L-1A, or L-1B status?',ynbtn('h1bMoreThan50pct')):''}
 
-  ${sec('Section 1 · General Information — Item 2: Beneficiary's Highest Level of Education')}
+  ${sec("Section 1 · General Information — Item 2: Beneficiary's Highest Level of Education")}
   ${fld('Highest level of education completed',sel('h1bEducation',edu,'Select education level…'),'',true)}
   ${fld('Major / Primary Field of Study',inp('h1bFieldOfStudy','e.g. Computer Science'),'',true)}
 
@@ -460,7 +463,7 @@ function renderS9(){ // H-1B Data Collection Supplement
 
   ${sec('Section 3 · Cap Determination')}
   ${fld('Is the beneficiary cap-exempt (works at/for a qualifying institution)?',ynbtn('h1bCapExempt'),
-    'Cap-exempt if employed at institution of higher education, affiliated nonprofit, nonprofit research, or government research org')}
+    "Cap-exempt if employed at institution of higher education, affiliated nonprofit, nonprofit research, or government research org")}
   ${fld('Is the petition congressionally mandated or filed for a returning worker?',ynbtn('h1bCongressionallyMandated'))}
   `;
 }
