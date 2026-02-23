@@ -251,6 +251,135 @@ def fill_i129(data, input_pdf):
     s("Pt7Line3_DaytimePhoneNumber1[0]", f.get("sigPhone") or f.get("petPhone"))
     s("Pt7Line3_EmailAddress[0]",        f.get("sigEmail") or f.get("petEmail"))
 
+    # ══ PAGES 13-14 — H CLASSIFICATION SUPPLEMENT ═══════════════
+    pet_name = f.get("companyName") or f"{f.get('petFirstName','')} {f.get('petLastName','')}".strip()
+    ben_name  = f"{f.get('benFirstName','')} {f.get('benLastName','')}".strip()
+    s("Line1_PetitionerName[0]", pet_name)
+    s("Line2_BeneficiaryName[0]", ben_name)
+    s("Line2_TtlNumberofBeneficiaries[0]", f.get("totalWorkers","1"))
+
+    # H classification checkbox on supplement
+    cls_map = {
+        "H-1B Specialty Occupation": 0,
+        "H-1B1 Chile/Singapore": 1,
+        "H-2A Agricultural Worker": 4,
+        "H-2B Non-agricultural Worker": 7,
+        "H-3 Trainee": 5,
+    }
+    cls_idx = cls_map.get(f.get("classification",""), -1)
+    for i in range(8):
+        s(f"SubHLine4_class[{i}]", "/Y" if i == cls_idx else "/Off")
+
+    # Prior H/L stays (up to 6)
+    for n in range(1, 7):
+        s(f"Name_Line{n}[0]",     f.get(f"hPriorStay{n}Class"))
+        s(f"DateFrom_Line{n}[0]", f.get(f"hPriorStay{n}From"))
+        s(f"DateTo_Line{n}[0]",   f.get(f"hPriorStay{n}To"))
+
+    # Duties and work experience (page 14)
+    s("Line1_Duties[0]",                f.get("hDuties"))
+    s("Line2_SummaryofWorkExperience[0]",f.get("hWorkExperience"))
+
+    # H supplement yes/no questions
+    guam = f.get("hSubjectToGuam") == "yes"
+    s("SupHLine5_Yes[1]", "/Y"   if guam else "/Off")
+    s("SupHLine5_No[1]",  "/Off" if guam else "/Y")
+
+    coe = f.get("hChangeOfEmployer") == "yes"
+    s("SupHLine5_Yes[0]", "/Y"   if coe else "/Off")
+    s("SupHLine5_No[0]",  "/Off" if coe else "/Y")
+
+    ctrl = f.get("hBenControllingInterest") == "yes"
+    s("Line8a_Check[0]", "/Y"   if ctrl else "/Off")
+    s("Line8a_Check[1]", "/Off" if ctrl else "/Y")
+    if ctrl:
+        s("Line8b_Explain[0]", f.get("hBenControllingExplain"))
+
+    # Petitioner printed name on supplement signature block
+    s("Sect1_PetitionerPrintedName[0]", pet_name)
+
+    # ══ PAGES 21-23 — H-1B DATA COLLECTION SUPPLEMENT ═══════════
+    s("Line1_FamilyName[3]", pet_name)
+    s("Line1_FamilyName[2]", ben_name)
+
+    # 1a H-1B dependent employer
+    dep = f.get("h1bDependentEmployer") == "yes"
+    s("H1BSecALine1a_Yes[0]", "/Y"   if dep else "/Off")
+    s("H1BSecALine1a_No[0]",  "/Off" if dep else "/Y")
+
+    # 1b willful violator
+    wv = f.get("h1bWillfulViolator") == "yes"
+    s("H1BSecALine1b_Yes[0]", "/Y"   if wv else "/Off")
+    s("H1BSecALine1b_No[0]",  "/Off" if wv else "/Y")
+
+    # 1c exempt from DOL attestation
+    exempt = f.get("h1bExemptDOL") == "yes"
+    s("H1BSecALine1c_Yes[0]", "/Y"   if exempt else "/Off")
+    s("H1BSecALine1c_No[0]",  "/Off" if exempt else "/Y")
+
+    # 1d 50 or more employees
+    fifty = f.get("h1b50orMore") == "yes"
+    s("H1BSecALine1d_Yes[0]", "/Y"   if fifty else "/Off")
+    s("H1BSecALine1d_No[0]",  "/Off" if fifty else "/Y")
+
+    # 1d.1 more than 50% H-1B/L workers
+    if fifty:
+        pct = f.get("h1bMoreThan50pct") == "yes"
+        s("H1BSecALine1d1_Yes[0]", "/Y"   if pct else "/Off")
+        s("H1BSecALine1d1_No[0]",  "/Off" if pct else "/Y")
+
+    # 1c.2 exempt from fee (for dependent employers)
+    # 1c.1 not used for cap
+    if dep:
+        c2 = f.get("h1bExemptDOL") == "yes"
+        s("H1BSecALine1c1_Yes[0]", "/Y"   if c2 else "/Off")
+        s("H1BSecALine1c1_No[0]",  "/Off" if c2 else "/Y")
+        s("H1BSecALine1c2_Yes[0]", "/Y"   if c2 else "/Off")
+        s("H1BSecALine1c2_No[0]",  "/Off" if c2 else "/Y")
+
+    # Highest education level
+    edu_map = {
+        "none": "a_no_diploma[0]",
+        "hs": "b_HSDiploma[0]",
+        "some_college": "c_some_college[0]",
+        "associates": "e_AssociateDegree[0]",
+        "bachelors": "f_BachelorDegree[0]",
+        "some_grad": "d_collegeplus[0]",
+        "masters": "g_MasterDegree[0]",
+        "professional": "h_ProfessionalDegree[0]",
+        "doctorate": "i_DoctorateDegree[0]",
+    }
+    edu_val = f.get("h1bEducation","")
+    for k, field_name in edu_map.items():
+        s(field_name, "/Y" if k == edu_val else "/Off")
+
+    # Field of study, DOT, NAICS, rate of pay
+    s("PartA_q3_Field_of_Study[0]", f.get("h1bFieldOfStudy"))
+    s("Line5_DOTCode[0]",           f.get("h1bDOTCode"))
+    s("Line6_NAICSCode[0]",         f.get("h1bNAICSCode"))
+    s("Line4_RateofPayPerYear[0]",  f.get("h1bRateOfPay") or f.get("wages"))
+
+    # Section 2 Fee exemption
+    fee = f.get("h1bFeeExempt") == "yes"
+    s("H1BSec2Line1_Yes[0]", "/Y"   if fee else "/Off")
+    s("H1BSec2Line1_No[0]",  "/Off" if fee else "/Y")
+
+    np2 = f.get("h1bNonprofit") == "yes"
+    s("H1BSec2Line2_Yes[0]", "/Y"   if np2 else "/Off")
+    s("H1BSec2Line2_No[0]",  "/Off" if np2 else "/Y")
+
+    # Default remaining fee exemption lines to No
+    for i in range(3, 10):
+        s(f"H1BSec2Line{i}_No[0]",  "/Y")
+        s(f"H1BSec2Line{i}_Yes[0]", "/Off")
+
+    # Section 3 Cap determination
+    cap_e = f.get("h1bCapExempt") == "yes"
+    s("Cap[0]", "/Y"   if cap_e else "/Off")   # cap-exempt box 1
+    s("Cap[1]", "/Off" if cap_e else "/Off")
+    s("Cap[2]", "/Off")
+    s("Cap[3]", "/Off" if not f.get("h1bCongressionallyMandated") == "yes" else "/Y")
+
     buf = io.BytesIO()
     writer.write(buf)
     buf.seek(0)

@@ -137,16 +137,18 @@ select.inp option{background:var(--navy2)}
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
 const STEPS = [
-  {part:'Part 1', title:'Petitioner Information',   sub:'Who is filing this petition?'},
-  {part:'Part 2', title:'Petition Information',      sub:'Classification and requested action'},
-  {part:'Part 3', title:'Beneficiary — Name & Other Names', sub:'Items 1–4: beneficiary identity'},
-  {part:'Part 3', title:'Beneficiary — Personal Info', sub:'Items 5–7: DOB, sex, country, address'},
-  {part:'Part 3', title:'Beneficiary — U.S. Entry Info', sub:'Item 6: passport, status, I-94, SEVIS'},
-  {part:'Part 4', title:'Processing Information',   sub:'Consulate and beneficiary foreign address'},
-  {part:'Part 5', title:'Employment Details',        sub:'Job, location, schedule and wages'},
-  {part:'Part 5', title:'Employer Information',      sub:'Business details and export control'},
-  {part:'Part 7', title:'Signatory Information',     sub:'Authorized signatory name and contact'},
-  {part:'',       title:'Review & Submit',           sub:'Verify everything before generating the PDF'},
+  {part:'Part 1',    title:'Petitioner Information',          sub:'Who is filing this petition?'},
+  {part:'Part 2',    title:'Petition Information',             sub:'Classification and requested action'},
+  {part:'Part 3',    title:'Beneficiary — Name & Other Names',sub:'Items 1–4: beneficiary identity'},
+  {part:'Part 3',    title:'Beneficiary — Personal Info',      sub:'Items 5–7: DOB, sex, country, address'},
+  {part:'Part 3',    title:'Beneficiary — U.S. Entry Info',   sub:'Item 6: passport, status, I-94, SEVIS'},
+  {part:'Part 4',    title:'Processing Information',           sub:'Consulate and beneficiary foreign address'},
+  {part:'Part 5',    title:'Employment Details',               sub:'Job, location, schedule and wages'},
+  {part:'Part 5',    title:'Employer Information',             sub:'Business details and export control'},
+  {part:'H Supp.',   title:'H Classification Supplement',     sub:'Prior H/L stays · duties · work experience · H-1B questions'},
+  {part:'Data Coll.',title:'H-1B Data Collection Supplement', sub:'Education · employer info · fee exemption · cap determination'},
+  {part:'Part 7',    title:'Signatory Information',            sub:'Authorized signatory name and contact'},
+  {part:'',          title:'Review & Submit',                  sub:'Verify everything before generating the PDF'},
 ];
 
 const STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
@@ -200,6 +202,31 @@ let F = {
   businessType:'',yearEstablished:'',numEmployees:'',
   grossIncome:'',netIncome:'',
   has25orFewer:'no',exportControl:'no_license',
+  // H Classification Supplement (pages 13-14)
+  hPriorStay1Class:'',hPriorStay1From:'',hPriorStay1To:'',
+  hPriorStay2Class:'',hPriorStay2From:'',hPriorStay2To:'',
+  hPriorStay3Class:'',hPriorStay3From:'',hPriorStay3To:'',
+  hPriorStay4Class:'',hPriorStay4From:'',hPriorStay4To:'',
+  hPriorStay5Class:'',hPriorStay5From:'',hPriorStay5To:'',
+  hPriorStay6Class:'',hPriorStay6From:'',hPriorStay6To:'',
+  hDuties:'',hWorkExperience:'',
+  hBenControllingInterest:'no',hBenControllingExplain:'',
+  hSubjectToGuam:'no',hChangeOfEmployer:'no',
+  // H-1B Data Collection Supplement (pages 21-23)
+  h1bDependentEmployer:'no',
+  h1bWillfulViolator:'no',
+  h1bExemptDOL:'no',
+  h1b50orMore:'no',
+  h1bMoreThan50pct:'no',
+  h1bEducation:'',
+  h1bFieldOfStudy:'',
+  h1bDOTCode:'',
+  h1bNAICSCode:'',
+  h1bRateOfPay:'',
+  h1bFeeExempt:'no',
+  h1bNonprofit:'no',
+  h1bCapExempt:'no',
+  h1bCongressionallyMandated:'no',
   // Part 7
   sigLastName:'',sigFirstName:'',sigTitle:'',sigPhone:'',sigEmail:'',
 };
@@ -361,7 +388,84 @@ function renderS7(){ // Part 5b — Employer + export control
   )}`;
 }
 
-function renderS8(){ // Part 7
+
+function renderS8(){ // H Classification Supplement
+  const isHL = ['H-1B Specialty Occupation','H-1B1 Chile/Singapore','H-2A Agricultural Worker',
+    'H-2B Non-agricultural Worker','H-3 Trainee','L-1A Manager/Executive','L-1B Specialized Knowledge']
+    .includes(F.classification);
+  return `
+  ${sec('Item 3 · Prior H or L Stays in the U.S. (Last 6 Years)')}
+  <div class="info-box">List each period the beneficiary was in the U.S. in H or L status in the past 6 years. Leave blank if none.</div>
+  <div style="border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface);padding:8px 14px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;gap:12px">
+      <span>Classification (H-1B, L-1A, etc.)</span><span>Date From</span><span>Date To</span>
+    </div>
+    ${[1,2,3,4,5,6].map(n=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:8px 14px;border-top:1px solid var(--line)">
+      ${inp('hPriorStay'+n+'Class','e.g. H-1B')}
+      ${inp('hPriorStay'+n+'From','','date')}
+      ${inp('hPriorStay'+n+'To','','date')}
+    </div>`).join('')}
+  </div>
+
+  ${sec('Section 1 · H-1B Classification — Duties & Experience')}
+  ${fld('Item 1 · Describe the proposed duties',\`<textarea class="inp" data-key="hDuties" rows="4" placeholder="Describe in detail the duties the beneficiary will perform in the U.S." oninput="u('hDuties',this.value)"></textarea>\`,'Be specific — list day-to-day tasks and % of time on each',true)}
+  ${fld('Item 2 · Beneficiary's present occupation and summary of prior work experience',\`<textarea class="inp" data-key="hWorkExperience" rows="4" placeholder="Describe current job title, employer, and summary of relevant prior work history" oninput="u('hWorkExperience',this.value)"></textarea>\`,'',true)}
+
+  ${sec('Items 6–8 · Additional H Supplement Questions')}
+  ${fld('Item 6 · Are you filing this petition on behalf of a beneficiary subject to the Guam-CNMI visa waiver?',ynbtn('hSubjectToGuam'))}
+  ${fld('Item 7 · Are you requesting a change of employer and was the beneficiary previously in H status?',ynbtn('hChangeOfEmployer'))}
+  ${fld('Item 8A · Does any beneficiary in this petition have a controlling interest in the petitioning organization?',ynbtn('hBenControllingInterest'))}
+  ${F.hBenControllingInterest==='yes'?fld('Item 8B · Explain beneficiary ownership interest',inp('hBenControllingExplain'),'',true):''}
+  `;
+}
+
+function renderS9(){ // H-1B Data Collection Supplement
+  const edu = [
+    {v:'none',l:'No Diploma'},
+    {v:'hs',l:'High School Diploma or Equivalent'},
+    {v:'some_college',l:'Some College Credit, No Degree'},
+    {v:'associates',l:'Associate's Degree'},
+    {v:'bachelors',l:'Bachelor's Degree'},
+    {v:'some_grad',l:'Some Graduate Work, No Degree'},
+    {v:'masters',l:'Master's Degree'},
+    {v:'professional',l:'Professional Degree (J.D., M.D., D.D.S., etc.)'},
+    {v:'doctorate',l:'Doctorate Degree'},
+  ];
+  return `
+  ${sec('Section 1A · Employer Information')}
+  ${fld('1a · Is the petitioner an H-1B dependent employer?',ynbtn('h1bDependentEmployer'),
+    'H-1B dependent = 25 or fewer FTE employees and 8+ H-1B workers, OR 26–50 FTE and 13+ H-1B workers, OR 51+ FTE and H-1B workers = 15%+ of workforce')}
+  ${fld('1b · Has the petitioner ever been found to be a willful violator?',ynbtn('h1bWillfulViolator'))}
+  ${fld('1c · Is the beneficiary an H-1B nonimmigrant exempt from Dept. of Labor attestation requirements?',ynbtn('h1bExemptDOL'),
+    'Exempt if earning ≥ $60,000/year OR holds a master's degree or higher in the specialty')}
+  ${fld('1d · Does the petitioner employ 50 or more individuals in the United States?',ynbtn('h1b50orMore'))}
+  ${F.h1b50orMore==='yes'?fld('1d.1 · Are more than 50% of those U.S. employees in H-1B, L-1A, or L-1B status?',ynbtn('h1bMoreThan50pct')):''}
+
+  ${sec('Section 1 · General Information — Item 2: Beneficiary's Highest Level of Education')}
+  ${fld('Highest level of education completed',sel('h1bEducation',edu,'Select education level…'),'',true)}
+  ${fld('Major / Primary Field of Study',inp('h1bFieldOfStudy','e.g. Computer Science'),'',true)}
+
+  ${sec('Section 1 · Items 4–6: Position Details')}
+  ${g('g3',
+    fld('Item 4 · Rate of Pay Per Year ($)',inp('h1bRateOfPay'),'Annual salary for this position'),
+    fld('Item 5 · DOT Code',inp('h1bDOTCode'),'Dictionary of Occupational Titles code'),
+    fld('Item 6 · NAICS Code',inp('h1bNAICSCode'),'North American Industry Classification System')
+  )}
+
+  ${sec('Section 2 · Fee Exemption and/or Determination')}
+  <div class="info-box">Answer these to determine if the petitioner qualifies for an exemption from the $1,500/$750 training fee.</div>
+  ${fld('Is the petitioner an institution of higher education, or a related/affiliated nonprofit?',ynbtn('h1bFeeExempt'))}
+  ${fld('Is the petitioner a nonprofit research organization or governmental research organization?',ynbtn('h1bNonprofit'))}
+
+  ${sec('Section 3 · Cap Determination')}
+  ${fld('Is the beneficiary cap-exempt (works at/for a qualifying institution)?',ynbtn('h1bCapExempt'),
+    'Cap-exempt if employed at institution of higher education, affiliated nonprofit, nonprofit research, or government research org')}
+  ${fld('Is the petition congressionally mandated or filed for a returning worker?',ynbtn('h1bCongressionallyMandated'))}
+  `;
+}
+
+function renderS10(){ // Part 7
   return `
   ${sec('Item 1 · Name and Title of Authorized Signatory')}
   <div class="info-box">The person signing this petition on behalf of the petitioner (not the preparer).</div>
@@ -374,7 +478,7 @@ function renderS8(){ // Part 7
   </div>`;
 }
 
-function renderS9(){ // Review
+function renderS11(){ // Review
   const pName = F.petitionerType==='company'?F.companyName:[F.petLastName,F.petFirstName].filter(Boolean).join(', ');
   const bName = [F.benLastName,F.benFirstName,F.benMiddleName].filter(Boolean).join(', ');
   const rows=[
@@ -426,7 +530,7 @@ function renderS9(){ // Review
   <div class="review-table">${rowsHtml}</div>`;
 }
 
-const renderers=[renderS0,renderS1,renderS2,renderS3,renderS4,renderS5,renderS6,renderS7,renderS8,renderS9];
+const renderers=[renderS0,renderS1,renderS2,renderS3,renderS4,renderS5,renderS6,renderS7,renderS8,renderS9,renderS10,renderS11];
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function renderNav(){
